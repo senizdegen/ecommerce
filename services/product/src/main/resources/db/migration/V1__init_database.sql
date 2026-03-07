@@ -19,4 +19,4 @@ create table if not exists product
     constraint fk_product_category
     foreign key (category_id)
     references category(id)
-    );
+);
