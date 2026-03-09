@@ -10,7 +10,6 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-
 public class OrderLine {
     @Id
     @GeneratedValue
