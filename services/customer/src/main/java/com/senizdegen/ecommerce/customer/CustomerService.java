@@ -4,7 +4,6 @@ import com.senizdegen.ecommerce.exception.CustomerNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
-import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,11 +31,11 @@ public class CustomerService {
     }
 
     private void mergeCustomer(Customer customer, @Valid CustomerRequest request) {
-        if(StringUtils.isNotBlank(request.firstName())){
-            customer.setFirstName(request.firstName());
+        if(StringUtils.isNotBlank(request.firstname())){
+            customer.setFirstName(request.firstname());
         }
-        if(StringUtils.isNotBlank(request.lastName())){
-            customer.setLastName(request.lastName());
+        if(StringUtils.isNotBlank(request.lastname())){
+            customer.setLastName(request.lastname());
         }
         if(StringUtils.isNotBlank(request.email())){
             customer.setEmail(request.email());
@@ -53,7 +52,7 @@ public class CustomerService {
                 .collect(Collectors.toList());
     }
 
-    public @Nullable Boolean existsById(String customerId) {
+    public boolean existsById(String customerId) {
         return repository.findById(customerId)
                 .isPresent();
     }
