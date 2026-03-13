@@ -6,12 +6,13 @@ import com.senizdegen.ecommerce.kafka.OrderConfirmation;
 import com.senizdegen.ecommerce.kafka.OrderProducer;
 import com.senizdegen.ecommerce.orderline.OrderLineRequest;
 import com.senizdegen.ecommerce.orderline.OrderLineService;
+import com.senizdegen.ecommerce.payment.PaymentClient;
+import com.senizdegen.ecommerce.payment.PaymentRequest;
 import com.senizdegen.ecommerce.product.ProductClient;
 import com.senizdegen.ecommerce.product.PurchaseRequest;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class OrderService {
     private final OrderMapper mapper;
     private final OrderLineService orderLineService;
     private final OrderProducer orderProducer;
+    private final PaymentClient paymentClient;
 
     public Integer createOrder(@Valid OrderRequest request) {
         var customer = this.customerClient.findCustomerById(request.customerId())
@@ -47,7 +49,14 @@ public class OrderService {
             );
         }
 
-        //todo start payment process
+        var paymentRequest = new PaymentRequest(
+                request.amount(),
+                request.paymentMethod(),
+                order.getId(),
+                order.getReference(),
+                customer
+        );
+        paymentClient.requestOrderPayment(paymentRequest);
 
         orderProducer.sendOrderConfirmation(
                 new OrderConfirmation(
