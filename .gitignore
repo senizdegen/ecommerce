@@ -1,0 +1,39 @@
+# ===========================
+# Python related
+# ===========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyd
+*.env
+env/
+venv/
+.venv/
+
+# ===========================
+# Docker related
+# ===========================
+docker-compose.yml
+docker-compose.override.yml
+*.dockerignore
+
+# ===========================
+# IDEs / editors
+# ===========================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ===========================
+# OS files
+# ===========================
+.DS_Store
+Thumbs.db
+
+# ===========================
+# Logs
+# ===========================
+*.log
