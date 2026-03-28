@@ -4,11 +4,14 @@ from .service import ProductService
 from typing import List
 from .schemas import ProductModel, ProductCreateModel, ProductUpdateModel
 from .database import get_session
+from .dependencies import AccessTokenBearer
 
 
 
 product_router = APIRouter()
 product_service = ProductService()
+
+access_token_bearer = AccessTokenBearer()
 
 @product_router.get('/', response_model=List[ProductModel])
 async def get_all_products(
@@ -31,7 +34,8 @@ async def get_product(
 @product_router.post('/', response_model=ProductModel, status_code=status.HTTP_201_CREATED)
 async def create_product(
     product_data: ProductCreateModel,
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    token_details: dict = Depends(access_token_bearer)
 ):
     new_product = await product_service.create_product(product_data, session)
     return new_product

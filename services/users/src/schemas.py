@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 import uuid
 
@@ -10,3 +10,11 @@ class UserProfileModel(BaseModel):
     is_verified: bool 
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class UserProfileCreateModel(BaseModel):
+    uid: uuid.UUID
+    first_name: str
+    last_name: str
+    email: str

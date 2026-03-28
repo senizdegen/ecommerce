@@ -7,7 +7,7 @@ from datetime import datetime
 class UserProfile(SQLModel, table=True):
     __tablename__ = "user_profiles"
     uid: uuid.UUID = Field(
-        sa_column=Column(pg.UUID, nullable=False, primary_key=True, default=uuid.uuid4)
+        sa_column=Column(pg.UUID, nullable=False, primary_key=True)
     )
     first_name: str
     last_name: str

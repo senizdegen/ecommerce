@@ -3,7 +3,7 @@ from typing import List
 from .schemas import UserProfileModel
 from .service import UserService
 from .database import get_session
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 users_router = APIRouter()
 user_service = UserService()
@@ -12,3 +12,4 @@ user_service = UserService()
 async def get_users(session: AsyncSession = Depends(get_session)):
     user_profiles = await user_service.get_users(session)
     return user_profiles
+
