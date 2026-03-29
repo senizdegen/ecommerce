@@ -4,8 +4,9 @@ from .config import Config
 from .rabbit import RabbitMQClient
 from contextlib import asynccontextmanager
 
-version = 'v1'
+version = "v1"
 rabbit_client = RabbitMQClient(Config.RABBIT_URL)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -16,11 +17,12 @@ async def lifespan(app: FastAPI):
     finally:
         await rabbit_client.close()
 
+
 app = FastAPI(
     title="Auth Service",
     description="A REST API for a auth web service",
     version=version,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=["auth"])

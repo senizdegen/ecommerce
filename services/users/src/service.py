@@ -18,6 +18,14 @@ class UserService:
         statement = select(UserProfile).order_by(desc(UserProfile.created_at))
         result = await session.execute(statement)
         return result.scalars().all()
+    
+    async def get_user_by_uid(self, user_uid: str, session:AsyncSession):
+        statement = select(UserProfile).where(UserProfile.uid == user_uid)
+        result = await session.execute(statement)
+        if result:
+            return result.scalars().first()
+        else:
+            return None
         
     async def create_user(self, user_data: UserProfileCreateModel, session: AsyncSession):
         user_data_dict = user_data.model_dump()

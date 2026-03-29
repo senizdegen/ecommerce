@@ -11,8 +11,6 @@ class UserProfileModel(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
-
 class UserProfileCreateModel(BaseModel):
     uid: uuid.UUID
     first_name: str
