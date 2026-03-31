@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from .routes import inventory_router
 from contextlib import asynccontextmanager
 from .rabbit_consumer import ProductCreatedConsumer
+from .config import Config
+import uvicorn
 
 consumer = ProductCreatedConsumer()
 
@@ -25,3 +27,8 @@ app = FastAPI(
 )
 
 app.include_router(inventory_router, prefix=f"/api/{version}/inventory", tags=["inventory"])
+
+port = Config.PORT
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

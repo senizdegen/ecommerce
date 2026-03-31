@@ -7,7 +7,7 @@ class UserService:
     async def get_user_by_email(self, email: str, session: AsyncSession):
         statement = select(UserProfile).where(UserProfile.email == email)
         result = await session.execute(statement)
-        user_profile = result.first()
+        user_profile = result.scalars().first()
         return user_profile
     
     async def user_profile_exists(self, email: str, session: AsyncSession) -> bool:

@@ -9,17 +9,15 @@ from .database import get_session
 inventory_router = APIRouter()
 inventory_service = InventoryService()
 
-
 @inventory_router.post("/")
 async def create_inventory(
     data: InventoryCreate, session: AsyncSession = Depends(get_session)
 ):
-    existing = await inventory_service.get_inventory(session, data.product_uid)
+    existing = await inventory_service.find_inventory(session, data.product_uid)
     if existing:
-        raise HTTPException(400, "Already exists")
+        raise HTTPException(status_code=400, detail="Already exists")
 
     return await inventory_service.create_inventory(session, data)
-
 
 @inventory_router.get("/{product_id}")
 async def get_inventory(product_id: UUID, session: AsyncSession = Depends(get_session)):

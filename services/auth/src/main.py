@@ -3,6 +3,7 @@ from .routes import auth_router
 from .config import Config
 from .rabbit import RabbitMQClient
 from contextlib import asynccontextmanager
+import uvicorn
 
 version = "v1"
 rabbit_client = RabbitMQClient(Config.RABBIT_URL)
@@ -26,3 +27,8 @@ app = FastAPI(
 )
 
 app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=["auth"])
+
+port = Config.PORT
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from .routes import users_router
 from .rabbit_consumer import UserCreatedConsumer
+from .config import Config
+import uvicorn
 
 consumer = UserCreatedConsumer()
 
@@ -25,4 +27,9 @@ app = FastAPI(
 )
 
 app.include_router(users_router, prefix=f'/api/{version}/users', tags=['users'])
+
+port = Config.PORT
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
 

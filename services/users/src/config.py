@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    PORT: str
     DATABASE_URL: str
     RABBIT_URL: str
 

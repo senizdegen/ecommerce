@@ -10,7 +10,7 @@ auth_router = APIRouter()
 auth_service = AuthService()
 
 
-@auth_router.post("/signup")
+@auth_router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserCreateModel,
     request: Request,
