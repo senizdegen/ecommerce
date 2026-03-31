@@ -2,39 +2,39 @@ import json
 import aio_pika
 from aio_pika.abc import AbstractIncomingMessage
 from .database import AsyncSessionLocal
-from .service import UserService
+from .service import InventoryService
 from .config import Config
-from .schemas import UserProfileCreateModel
+from .schemas import InventoryCreate
 
 RABBIT_URL = Config.RABBIT_URL
 
-
-class UserCreatedConsumer:
+class ProductCreatedConsumer:
     def __init__(self):
         self.connection = None
         self.channel = None
         self.exchange = None
         self.queue = None
-        self.user_service = UserService()
-
+        self.inventory_service = InventoryService()
+    
     async def connect(self):
         self.connection = await aio_pika.connect_robust(RABBIT_URL)
         self.channel = await self.connection.channel()
         await self.channel.set_qos(prefetch_count=10)
 
         self.exchange = await self.channel.declare_exchange(
-            "user_events",
+            "product_events",
             aio_pika.ExchangeType.TOPIC,
-            durable=True,
+            durable=True
         )
 
         self.queue = await self.channel.declare_queue(
-            "user_created_queue",
-            durable=True,
+            "product_created_queue",
+            durable=True
         )
 
-        await self.queue.bind(self.exchange, routing_key="user.created")
+        await self.queue.bind(self.exchange, routing_key="product.created")
 
+    
     async def consume(self):
         await self.queue.consume(self.process_message)
 
@@ -46,21 +46,11 @@ class UserCreatedConsumer:
         async with message.process():
             data = json.loads(message.body.decode())
 
-            user_profile_dict = {
-                "uid": data["uid"],
-                "first_name": data["first_name"],
-                "last_name": data["last_name"],
-                "email": data["email"],
+            inventory_dict = {
+                "product_uid": data["product_uid"],
+                "available_quantity": data["available_quantity"]
             }
 
             async with AsyncSessionLocal() as session:
-                user_profile_exists = await self.user_service.user_profile_exists(
-                    user_profile_dict["email"], session
-                )
-
-                if user_profile_exists:
-                    return
-
-                new_user_profile = UserProfileCreateModel(**user_profile_dict)
-
-                await self.user_service.create_user(new_user_profile, session)
+                new_inventory = InventoryCreate(**inventory_dict)
+                await self.inventory_service.create_inventory(session=session, data=new_inventory)

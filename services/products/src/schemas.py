@@ -16,6 +16,7 @@ class ProductCreateModel(BaseModel):
     name: str
     description: str
     price: Decimal
+    available_quantity: Decimal
 
 class ProductUpdateModel(BaseModel):
     name: str

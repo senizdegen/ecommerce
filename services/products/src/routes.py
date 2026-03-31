@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Request
 from sqlmodel.ext.asyncio.session import AsyncSession
 from .service import ProductService
 from typing import List
@@ -31,14 +31,27 @@ async def get_product(
     else: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product with provided uid not found")
 
-@product_router.post('/', response_model=ProductModel, status_code=status.HTTP_201_CREATED)
+@product_router.post('/', status_code=status.HTTP_201_CREATED)
 async def create_product(
     product_data: ProductCreateModel,
+    request: Request,
     session: AsyncSession = Depends(get_session),
-    token_details: dict = Depends(access_token_bearer)
+    #token_details: dict = Depends(access_token_bearer)
 ):
     new_product = await product_service.create_product(product_data, session)
-    return new_product
+    await request.app.state.rabbit.publish_product_created(
+        {
+            "product_uid": str(new_product.uid),
+            "available_quantity": int(product_data.available_quantity)
+        }
+    )
+
+    return {
+        "message": "Product created successfully",
+        "product":{
+            "uid": str(new_product.uid)
+        }
+    }
 
 @product_router.patch('/{product_uid}', response_model=ProductModel)
 async def update_product(
