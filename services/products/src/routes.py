@@ -36,7 +36,7 @@ async def create_product(
     product_data: ProductCreateModel,
     request: Request,
     session: AsyncSession = Depends(get_session),
-    #token_details: dict = Depends(access_token_bearer)
+    token_details: dict = Depends(access_token_bearer)
 ):
     new_product = await product_service.create_product(product_data, session)
     await request.app.state.rabbit.publish_product_created(
@@ -57,7 +57,8 @@ async def create_product(
 async def update_product(
     product_uid: str,
     product_update_data: ProductUpdateModel,
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    token_details: dict = Depends(access_token_bearer)
 ):
     updated_book = await product_service.update_product(product_uid, product_update_data, session)
     if updated_book:
@@ -66,7 +67,11 @@ async def update_product(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product with provided uid not found")
 
 @product_router.delete('/{product_uid}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_product(product_uid: str, session:AsyncSession = Depends(get_session)):
+async def delete_product(
+    product_uid: str, 
+    session:AsyncSession = Depends(get_session),
+    token_details: dict = Depends(access_token_bearer)
+    ):
     response = await product_service.delete_product(product_uid, session)
     if response is not None:
         return {}

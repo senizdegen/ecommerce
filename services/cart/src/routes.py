@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .database import get_session
 from .service import CartService
@@ -9,22 +9,28 @@ from .schemas import (
     CartWithItemsResponse,
     CartItemModel,
 )
+from .dependencies import get_current_user
 
 cart_router = APIRouter()
 cart_service = CartService()
 
 
-@cart_router.get("/{user_uid}", response_model=CartWithItemsResponse)
-async def get_cart(user_uid: str, session: AsyncSession = Depends(get_session)):
+@cart_router.get("/me", response_model=CartWithItemsResponse)
+async def get_cart(
+    current_user: dict = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session)
+):
+    user_uid = current_user["user"]["user_uid"]
     return await cart_service.get_cart_by_user(user_uid, session)
 
 
-@cart_router.post("/{user_uid}/items", response_model=CartItemModel, status_code=status.HTTP_201_CREATED)
+@cart_router.post("/items", response_model=CartItemModel, status_code=status.HTTP_201_CREATED)
 async def add_to_cart(
-    user_uid: str,
     item_data: AddToCartRequest,
+    current_user: dict = Depends(get_current_user),
     session: AsyncSession = Depends(get_session)
 ):
+    user_uid = current_user["user"]["user_uid"]
     return await cart_service.add_item_to_cart(user_uid, item_data, session)
 
 
@@ -32,6 +38,7 @@ async def add_to_cart(
 async def update_cart_item(
     item_uid: str,
     update_data: UpdateCartItemRequest,
+    current_user: dict = Depends(get_current_user),
     session: AsyncSession = Depends(get_session)
 ):
     updated_item = await cart_service.update_cart_item(item_uid, update_data, session)
@@ -48,6 +55,7 @@ async def update_cart_item(
 @cart_router.delete("/items/{item_uid}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_cart_item(
     item_uid: str,
+    current_user: dict = Depends(get_current_user),
     session: AsyncSession = Depends(get_session)
 ):
     deleted_item = await cart_service.remove_cart_item(item_uid, session)
@@ -61,10 +69,11 @@ async def remove_cart_item(
     return {}
 
 
-@cart_router.delete("/{user_uid}/clear", status_code=status.HTTP_204_NO_CONTENT)
+@cart_router.delete("/clear", status_code=status.HTTP_204_NO_CONTENT)
 async def clear_cart(
-    user_uid: str,
+    current_user: dict = Depends(get_current_user),
     session: AsyncSession = Depends(get_session)
 ):
+    user_uid = current_user["user"]["user_uid"]
     await cart_service.clear_cart(user_uid, session)
     return {}
