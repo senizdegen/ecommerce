@@ -44,3 +44,20 @@ class RabbitMQClient:
             message,
             routing_key="product.created"
         )
+
+    async def publish_product_updated(self, payload: dict):
+        if not self.exchange:
+            raise RuntimeError("RabbitMQ exchange is not initialized")
+        
+        body = json.dumps(payload).encode()
+
+        message = Message(
+            body=body,
+            content_type="application/json",
+            delivery_mode=DeliveryMode.PERSISTENT
+        )
+
+        await self.exchange.publish(
+            message,
+            routing_key="product.updated"
+        )

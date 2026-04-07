@@ -28,7 +28,7 @@ class ProductCreatedConsumer:
         )
 
         self.queue = await self.channel.declare_queue(
-            "product_created_queue",
+            "inventory_product_created_queue",
             durable=True
         )
 

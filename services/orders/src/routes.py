@@ -1,0 +1,71 @@
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
+
+from .database import get_session
+from .service import OrderService
+from .schemas import OrderModel, OrderWithItemsResponse
+from .dependencies import AccessTokenBearer
+
+
+order_router = APIRouter()
+order_service = OrderService()
+access_token_bearer = AccessTokenBearer()
+
+
+@order_router.post("/checkout", response_model=OrderWithItemsResponse, status_code=status.HTTP_201_CREATED)
+async def checkout(
+    request: Request,
+    token_details: dict = Depends(access_token_bearer),
+    session: AsyncSession = Depends(get_session)
+):
+    user_uid = token_details["user"]["user_uid"]
+    auth_header = request.headers.get("Authorization")
+    access_token = auth_header.split(" ")[1]
+
+    return await order_service.checkout(user_uid, access_token, session)
+
+
+@order_router.get("/", response_model=List[OrderModel])
+async def get_my_orders(
+    token_details: dict = Depends(access_token_bearer),
+    session: AsyncSession = Depends(get_session)
+):
+    user_uid = token_details["user"]["user_uid"]
+    return await order_service.get_orders_by_user(user_uid, session)
+
+
+@order_router.get("/{order_uid}", response_model=OrderWithItemsResponse)
+async def get_order(
+    order_uid: str,
+    token_details: dict = Depends(access_token_bearer),
+    session: AsyncSession = Depends(get_session)
+):
+    user_uid = token_details["user"]["user_uid"]
+    order = await order_service.get_order_by_uid(order_uid, user_uid, session)
+
+    if order is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order with provided uid not found"
+        )
+
+    return order
+
+
+@order_router.post("/{order_uid}/cancel", response_model=OrderWithItemsResponse)
+async def cancel_order(
+    order_uid: str,
+    token_details: dict = Depends(access_token_bearer),
+    session: AsyncSession = Depends(get_session)
+):
+    user_uid = token_details["user"]["user_uid"]
+    cancelled_order = await order_service.cancel_order(order_uid, user_uid, session)
+
+    if cancelled_order is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order with provided uid not found"
+        )
+
+    return cancelled_order

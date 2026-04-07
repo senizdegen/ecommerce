@@ -42,6 +42,9 @@ async def create_product(
     await request.app.state.rabbit.publish_product_created(
         {
             "product_uid": str(new_product.uid),
+            "name": new_product.name,
+            "description": new_product.description,
+            "price": float(new_product.price),
             "available_quantity": int(product_data.available_quantity)
         }
     )
@@ -57,14 +60,29 @@ async def create_product(
 async def update_product(
     product_uid: str,
     product_update_data: ProductUpdateModel,
+    request: Request,
     session: AsyncSession = Depends(get_session),
     token_details: dict = Depends(access_token_bearer)
 ):
-    updated_book = await product_service.update_product(product_uid, product_update_data, session)
-    if updated_book:
-        return updated_book
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product with provided uid not found")
+    updated_product = await product_service.update_product(product_uid, product_update_data, session)
+
+    if not updated_product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product with provided uid not found"
+        )
+
+    await request.app.state.rabbit.publish_product_updated(
+        {
+            "product_uid": str(updated_product.uid),
+            "name": updated_product.name,
+            "description": updated_product.description,
+            "price": float(updated_product.price)
+        }
+    )
+
+    return updated_product
+
 
 @product_router.delete('/{product_uid}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_product(

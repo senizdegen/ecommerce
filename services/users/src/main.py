@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from .routes import users_router
 from .rabbit_consumer import UserCreatedConsumer
 from .config import Config
-import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 
 consumer = UserCreatedConsumer()
 
@@ -26,10 +26,17 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(users_router, prefix=f'/api/{version}/users', tags=['users'])
-
-port = Config.PORT
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
-
