@@ -1,13 +1,24 @@
 # E-Commerce Admin Panel
 
-Frontend admin dashboard for managing products, orders, and customers.
+Admin dashboard for managing products, orders, and customers.
 
 Built with **Vite** + **Vanilla JS** + **Tailwind CSS**.
 
 ## Prerequisites
 
 - Node.js 18+
-- Backend API running at `http://localhost:8000` (see backend repo)
+- All backend microservices running:
+
+| Service   | URL                          |
+|----------|------------------------------|
+| Auth     | http://localhost:8001        |
+| User     | http://localhost:8002        |
+| Product  | http://localhost:8003        |
+| Cart     | http://localhost:8004        |
+| Order    | http://localhost:8005        |
+| Feed     | http://localhost:8007        |
+
+---
 
 ## Setup
 
@@ -19,7 +30,9 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open http://localhost:3001 in your browser.
+
+---
 
 ## Configuration
 
@@ -27,43 +40,89 @@ Edit `src/config/config.js`:
 
 ```js
 export const config = {
-  USE_MOCK: false,          // true = use localStorage mock data, false = real API
-  BASE_URL: 'http://localhost:8000/api/v1',
-  APP_NAME: 'AdminPanel'
+  API: {
+    auth: 'http://localhost:8001/api/v1',
+    user: 'http://localhost:8002/api/v1',
+    product: 'http://localhost:8003/api/v1',
+    feed: 'http://localhost:8007/api/v1/feed',
+    cart: 'http://localhost:8004/api/v1',
+    order: 'http://localhost:8005/api/v1',
+  },
+
+  MOCK: {
+    auth: false,
+    products: false,
+    customers: false,
+    orders: true,
+  },
+
+  APP_NAME: 'AdminPanel',
 };
 ```
 
-## Login
+### Mock System
 
-The admin account is pre-seeded in the backend — no registration needed.
-Use the credentials provided by whoever set up the backend.
+- true → uses localStorage / mock data  
+- false → uses real backend API  
+
+---
+
+## Features
+
+- Admin authentication
+- Product management (CRUD)
+- Customer management
+- Order management (partial / mock support)
+- Microservice-based API integration
+- Mock + real API switching
+- Dashboard UI
+
+---
 
 ## Project Structure
 
 ```
 src/
-├── config/        # App configuration (base URL, mock flag)
+├── config/        # API + mock configuration
 ├── core/          # Auth, router, event bus
-├── services/      # API calls (auth, products, orders, customers)
-├── pages/         # Page modules (each exports template + init)
-├── components/    # Reusable UI (sidebar, modal, toast)
-├── storage/       # localStorage helpers + mock data
+├── services/      # API calls (auth, products, orders, users)
+├── pages/         # Admin pages
+├── components/    # UI components (sidebar, modal, toast)
+├── storage/       # Mock + localStorage
 ├── main.js        # Entry point
-└── style.css      # Global styles (Tailwind)
+└── style.css      # Tailwind styles
 ```
 
-## API Endpoints
+---
 
-| Service   | Endpoints                                    | Real API |
-|-----------|----------------------------------------------|----------|
-| Auth      | `POST /auth/login`                           | Yes      |
-| Products  | `GET/POST /products/`, `GET/PATCH/DELETE /products/:id` | Yes |
-| Customers | `GET /users/`, `GET /users/:id`              | Yes      |
-| Orders    | `GET /orders`, `PUT /orders/:id/status`      | Needs `USE_MOCK: false` |
+## API Architecture
+
+This admin panel communicates with multiple microservices:
+
+- Auth Service
+- User Service (customers)
+- Product Service
+- Cart Service
+- Order Service
+- Feed Service
+
+---
 
 ## Build
 
 ```bash
-npm run build    # outputs to dist/
-npm run preview  # preview the production build
+npm run build
+npm run preview
 ```
+
+---
+
+## Notes
+
+This project is part of a full-stack ecommerce system:
+
+- customer frontend
+- admin panel (this repo)
+- backend microservices
+
+Some features (like orders) may run in mock mode depending on configuration.
