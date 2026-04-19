@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from .routes import cart_router
-from .config import Config
 from fastapi.middleware.cors import CORSMiddleware
 
 version = "v1"

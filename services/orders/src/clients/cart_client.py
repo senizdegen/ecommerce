@@ -18,25 +18,24 @@ class CartClient:
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Unauthorized"
                 )
-            
+
             if response.status_code != 200:
                 raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Cart service is unavailable"
-            )
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Cart service is unavailable"
+                )
 
             return response.json()
-        
+
     async def clear_cart(self, access_token: str):
-        async with httpx.AsyncClient as client:
+        async with httpx.AsyncClient() as client:  # были пропущены скобки ()
             response = await client.delete(
                 f"{self.base_url}/clear",
-                headers = {"Authorization":f"Bearer {access_token}"}
+                headers={"Authorization": f"Bearer {access_token}"}
             )
 
-        if response.status_code not in [200, 204]:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Failed to clear cart"
-            )
-            
+            if response.status_code not in [200, 204]:  # if был вне async with — после закрытия клиента
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Failed to clear cart"
+                )

@@ -1,5 +1,5 @@
 import { getCart, getTotal, clearCart } from '../services/cartService.js';
-import { createOrder } from '../services/orderService.js';
+import { checkout } from '../services/orderService.js';
 import { getCurrentUser } from '../services/authService.js';
 import { showToast } from '../components/toast.js';
 import { navigate } from '../core/router.js';
@@ -156,18 +156,17 @@ export async function init() {
   `;
 
   document.getElementById('place-order-btn').addEventListener('click', async () => {
-    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'CREDIT_CARD';
     const btn = document.getElementById('place-order-btn');
     btn.disabled = true;
     btn.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Placing order...`;
 
     try {
-      await createOrder(user.id, cart, total, paymentMethod);
-      await clearCart();
+      const result = await checkout(cart, subtotal);
       showToast('Order placed successfully! 🎉', 'success');
-      navigate('/orders');
+      const uid = result?.order?.uid || '';
+      navigate(`/orders/confirmation?uid=${uid}`);
     } catch (err) {
-      showToast('Failed to place order. Please try again.', 'error');
+      showToast(err.message || 'Failed to place order. Please try again.', 'error');
       btn.disabled = false;
       btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Place Order`;
     }

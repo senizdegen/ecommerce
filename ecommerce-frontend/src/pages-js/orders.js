@@ -1,7 +1,6 @@
 import { getOrders } from '../services/orderService.js';
 import { getCurrentUser } from '../services/authService.js';
 import { orderCard } from '../components/orderCard.js';
-import { config } from '../config/config.js';
 
 export const template = `
   <div class="min-h-screen bg-gray-50">
@@ -43,13 +42,9 @@ export async function init() {
     </div>`;
 
   try {
-    const orders = await getOrders(user.id);
+    const orders = await getOrders();
 
-    const filtered = config.USE_MOCK
-      ? orders
-      : orders.filter(o => String(o.customerId) === String(user.id));
-
-    if (filtered.length === 0) {
+    if (orders.length === 0) {
       list.innerHTML = `
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center py-20 text-center px-6">
           <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -68,9 +63,9 @@ export async function init() {
       return;
     }
 
-    const sorted = [...filtered].sort((a, b) => {
-      const dateA = new Date(a.date || a.createdAt || 0);
-      const dateB = new Date(b.date || b.createdAt || 0);
+    const sorted = [...orders].sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0);
+      const dateB = new Date(b.createdAt || 0);
       return dateB - dateA;
     });
 

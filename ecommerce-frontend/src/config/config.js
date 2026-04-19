@@ -12,10 +12,10 @@ export const config = {
 
   MOCK: {
     auth: false,
-    user: true,
+    user: false,
     product: false,
     cart: false,
-    order: true,
+    order: false,
     customer: true,
   }
 };

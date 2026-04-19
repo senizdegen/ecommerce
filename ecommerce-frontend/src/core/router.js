@@ -11,6 +11,7 @@ const routes = {
   '/product': () => import('../pages-js/productDetail.js'),
   '/cart': () => import('../pages-js/cart.js'),
   '/orders': () => import('../pages-js/orders.js'),
+  '/orders/confirmation': () => import('../pages-js/orderConfirmation.js'),
   '/profile': () => import('../pages-js/profile.js'),
   '/checkout': () => import('../pages-js/checkout.js'),
   '/wishlist': () => import('../pages-js/wishlist.js'),
@@ -33,9 +34,15 @@ function parseHash() {
 function matchRoute(path) {
   if (routes[path]) return { loader: routes[path], routeParams: {} };
   const segments = path.split('/').filter(Boolean);
+
   if (segments.length === 2 && segments[0] === 'product') {
     return { loader: routes['/product'], routeParams: { id: segments[1] } };
   }
+
+  if (segments.length === 2 && segments[0] === 'orders' && segments[1] === 'confirmation') {
+    return { loader: routes['/orders/confirmation'], routeParams: {} };
+  }
+
   return { loader: routes['/'], routeParams: {} };
 }
 
