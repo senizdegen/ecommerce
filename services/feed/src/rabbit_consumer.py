@@ -62,6 +62,7 @@ class ProductConsumer:
             "description": data["description"],
             "price": data["price"],
             "available_quantity": data["available_quantity"],
+            "image_url": data.get("image_url"),  # может быть None если фото нет
         }
 
         new_product = ProductCreateModel(**product_dict)
@@ -76,7 +77,8 @@ class ProductConsumer:
         update_data = ProductUpdateModel(
             name=data.get("name"),
             description=data.get("description"),
-            price=data.get("price")
+            price=data.get("price"),
+            image_url=data.get("image_url"),  # может быть None если фото не менялось
         )
 
         updated_product = await self.feed_service.update_product(
@@ -85,4 +87,4 @@ class ProductConsumer:
             product_data=update_data
         )
 
-        return updated_product  
+        return updated_product

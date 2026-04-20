@@ -15,5 +15,8 @@ class FeedProduct(SQLModel, table=True):
         sa_column=Column(pg.NUMERIC(10, 2), nullable=False)
     )
     available_quantity: int
+    image_url: str | None = Field(
+        sa_column=Column(pg.VARCHAR, nullable=True, default=None)
+    )
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))

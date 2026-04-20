@@ -12,13 +12,12 @@ class FeedService:
             name=product_data.name,
             description=product_data.description,
             price=product_data.price,
-            available_quantity=product_data.available_quantity
+            available_quantity=product_data.available_quantity,
+            image_url=product_data.image_url,  # добавить
         )
-
         session.add(new_product)
         await session.commit()
         await session.refresh(new_product)
-
         return new_product
 
     async def get_all(self, session: AsyncSession):
@@ -31,30 +30,21 @@ class FeedService:
         result = await session.execute(statement)
         return result.scalar_one_or_none()
 
-    async def update_product(
-        self,
-        session: AsyncSession,
-        product_uid: str,
-        product_data: ProductUpdateModel
-    ):
+    async def update_product(self, session, product_uid, product_data):
         statement = select(FeedProduct).where(FeedProduct.uid == product_uid)
         result = await session.execute(statement)
         product = result.scalar_one_or_none()
-
         if not product:
             return None
-
         if product_data.name is not None:
             product.name = product_data.name
-
         if product_data.description is not None:
             product.description = product_data.description
-
         if product_data.price is not None:
             product.price = product_data.price
-
+        if product_data.image_url is not None:  # добавить
+            product.image_url = product_data.image_url
         session.add(product)
         await session.commit()
         await session.refresh(product)
-
         return product

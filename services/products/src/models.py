@@ -14,5 +14,8 @@ class Product(SQLModel, table=True):
     price: Decimal = Field(
         sa_column=Column(pg.NUMERIC(10, 2), nullable=False)
     )
+    image_url: str | None = Field(
+        sa_column=Column(pg.VARCHAR, nullable=True, default=None)
+    )
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
