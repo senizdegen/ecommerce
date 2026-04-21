@@ -81,7 +81,7 @@ function getNavbarHTML() {
         <div class="flex items-center gap-3 flex-shrink-0">
           ${loggedIn ? `
           <a href="#/orders"
-             class="hidden md:flex relative text-gray-600 hover:text-red-500 transition-colors ${isActive('#/orders') ? 'text-red-500' : ''}"
+             class="flex relative text-gray-600 hover:text-red-500 transition-colors ${isActive('#/orders') ? 'text-red-500' : ''}"
              title="My Orders">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
           </a>` : ''}
@@ -123,10 +123,7 @@ function getNavbarHTML() {
       <div id="mobile-menu" class="hidden md:hidden fixed top-16 left-0 right-0 bg-white border-t border-gray-100 shadow-xl px-4 py-3 space-y-1 z-40">
         ${mobileNavLink('#/', 'Home')}
         ${mobileNavLink('#/products', 'Products')}
-        ${loggedIn ? mobileNavLink('#/orders', 'My Orders') : ''}
         ${loggedIn ? mobileNavLink('#/profile', 'My Account') : ''}
-        ${mobileNavLink('#/wishlist', 'Wishlist')}
-        ${mobileNavLink('#/cart', 'Cart')}
         <div class="border-t border-gray-100 my-2 pt-2">
           ${loggedIn
             ? `<div class="flex items-center justify-between px-3 py-2">

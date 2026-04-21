@@ -34,26 +34,6 @@ export const template = `
               Explore Now
               <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </a>
-            <a href="#/products" class="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors text-sm font-medium">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-              View Hot Deals
-            </a>
-          </div>
-          <div class="flex items-center gap-6 pt-6 border-t border-gray-800 justify-center lg:justify-start">
-            <div class="text-center lg:text-left">
-              <p class="text-2xl font-black">50K+</p>
-              <p class="text-xs text-gray-500 mt-0.5">Happy Customers</p>
-            </div>
-            <div class="w-px h-10 bg-gray-800"></div>
-            <div class="text-center lg:text-left">
-              <p class="text-2xl font-black">500+</p>
-              <p class="text-xs text-gray-500 mt-0.5">Products</p>
-            </div>
-            <div class="w-px h-10 bg-gray-800"></div>
-            <div class="text-center lg:text-left">
-              <p class="text-2xl font-black text-red-400">40%</p>
-              <p class="text-xs text-gray-500 mt-0.5">Max Discount</p>
-            </div>
           </div>
         </div>
         <div class="flex-1 hidden lg:flex justify-center items-center relative" style="min-height:420px;">
@@ -145,10 +125,6 @@ export const template = `
       </div>
       <div class="flex items-center justify-between mb-8">
         <h2 class="text-2xl font-bold text-gray-900">Best Sellers</h2>
-        <a href="#/products" class="text-sm font-semibold text-gray-900 hover:text-red-500 transition-colors flex items-center gap-1">
-          View All
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </a>
       </div>
       <div id="best-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-5">
         ${[...Array(4)].map(() => `<div class="rounded-xl bg-gray-100 animate-pulse" style="height:280px;"></div>`).join('')}
