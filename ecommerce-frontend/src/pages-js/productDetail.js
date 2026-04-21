@@ -14,9 +14,7 @@ export const template = `
         <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         <a href="#/products" class="hover:text-gray-700 transition-colors">Products</a>
         <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span id="bc-category" class="hover:text-gray-700 transition-colors cursor-default"></span>
-        <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span id="bc-name" class="text-gray-700 font-medium truncate max-w-xs"></span>
+<span id="bc-name" class="text-gray-700 font-medium truncate max-w-xs"></span>
       </nav>
       <div id="product-content" class="flex items-center justify-center py-24">
         <div class="flex flex-col items-center gap-3 text-gray-400">
@@ -50,9 +48,7 @@ export async function init(params = {}) {
     return;
   }
 
-  const bcCat = document.getElementById('bc-category');
   const bcName = document.getElementById('bc-name');
-  if (bcCat) bcCat.textContent = product.categoryName || 'Product';
   if (bcName) bcName.textContent = product.name;
 
   const qty = product.availableQuantity;
@@ -100,24 +96,6 @@ export async function init(params = {}) {
           </div>
         </div>
 
-        <!-- Trust strip -->
-        <div class="grid grid-cols-3 gap-3">
-          <div class="flex flex-col items-center gap-2 bg-white rounded-xl p-4 border border-gray-100 shadow-sm text-center">
-            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-            <p class="text-xs font-medium text-gray-700">Free Shipping</p>
-            <p class="text-xs text-gray-400">Over $140</p>
-          </div>
-          <div class="flex flex-col items-center gap-2 bg-white rounded-xl p-4 border border-gray-100 shadow-sm text-center">
-            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            <p class="text-xs font-medium text-gray-700">30-Day Returns</p>
-            <p class="text-xs text-gray-400">Hassle free</p>
-          </div>
-          <div class="flex flex-col items-center gap-2 bg-white rounded-xl p-4 border border-gray-100 shadow-sm text-center">
-            <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            <p class="text-xs font-medium text-gray-700">Secure Payment</p>
-            <p class="text-xs text-gray-400">100% protected</p>
-          </div>
-        </div>
       </div>
 
       <!-- ── RIGHT: Product Info ── -->
@@ -199,24 +177,6 @@ export async function init(params = {}) {
           <p class="text-xs text-gray-400 text-center">This item is currently unavailable. Check back later.</p>
         </div>
         `}
-
-        <!-- Product metadata -->
-        <div class="bg-gray-50 rounded-xl p-4 space-y-2.5 text-sm border border-gray-100">
-          <div class="flex gap-3">
-            <span class="text-gray-400 w-24 flex-shrink-0">Category</span>
-            <span class="text-gray-700 font-medium">${product.categoryName || '—'}</span>
-          </div>
-          <div class="flex gap-3">
-            <span class="text-gray-400 w-24 flex-shrink-0">SKU</span>
-            <span class="text-gray-700 font-medium font-mono">#${String(product.id).padStart(6, '0')}</span>
-          </div>
-          <div class="flex gap-3">
-            <span class="text-gray-400 w-24 flex-shrink-0">Availability</span>
-            ${inStock
-              ? `<span class="text-emerald-600 font-medium">${qty} in stock</span>`
-              : `<span class="text-red-500 font-medium">Unavailable</span>`}
-          </div>
-        </div>
 
       </div>
     </div>

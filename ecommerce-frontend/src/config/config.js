@@ -11,11 +11,11 @@ export const config = {
   APP_NAME: 'Shopify',
 
   MOCK: {
-    auth: false,
-    user: false,
-    product: false,
-    cart: false,
-    order: false,
+    auth: true,
+    user: true,
+    product: true,
+    cart: true,
+    order: true,
     customer: true,
   }
 };

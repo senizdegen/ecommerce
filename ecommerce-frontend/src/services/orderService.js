@@ -46,6 +46,8 @@ function mockCheckout(cartItems, total) {
       uid: 'i' + Date.now() + Math.random(),
       orderUid,
       productUid: item.productId,
+      name: item.name,
+      image: item.image,
       quantity: item.qty,
       priceSnapshot: item.price,
     })),
@@ -58,8 +60,7 @@ function mockCheckout(cartItems, total) {
 }
 
 function mockGetOrders() {
-  // В mock заказы хранятся как { order, items }[], возвращаем только order часть
-  return lsGetAll(ORDERS_KEY).map(entry => entry.order);
+  return lsGetAll(ORDERS_KEY).map(entry => ({ ...entry.order, items: entry.items }));
 }
 
 function mockGetOrderByUid(uid) {

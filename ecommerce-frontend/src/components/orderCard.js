@@ -62,13 +62,14 @@ export function orderCard(order) {
     <div class="space-y-3">
       ${order.items.map(item => `
         <div class="flex items-center gap-4 py-3 border-b border-gray-50 last:border-0">
-          <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-            <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
+          <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            ${item.image
+              ? `<img src="${item.image}" alt="${item.name || ''}" class="w-full h-full object-contain p-1" />`
+              : `<svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`
+            }
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-800 truncate">${item.productUid}</p>
+            <p class="text-sm font-medium text-gray-800 truncate">${item.name || item.productUid}</p>
             <p class="text-xs text-gray-400 mt-0.5">Qty: ${item.quantity}</p>
           </div>
           <p class="text-sm font-semibold text-gray-800 flex-shrink-0">

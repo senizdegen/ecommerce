@@ -142,35 +142,41 @@ export const mockUsers = [
 
 export const mockOrders = [
   {
-    id: 'o1',
-    userId: 'u1',
+    order: {
+      uid: 'o1',
+      status: 'DELIVERED',
+      totalAmount: 129.97,
+      createdAt: '2026-02-15T10:00:00.000Z',
+      updatedAt: '2026-02-15T10:00:00.000Z',
+    },
     items: [
-      { productId: '1', name: 'Wireless Bluetooth Headphones', price: 79.99, qty: 1 },
-      { productId: '8', name: 'JavaScript: The Good Parts', price: 24.99, qty: 2 }
+      { uid: 'i1', orderUid: 'o1', productUid: '1', name: 'Wireless Bluetooth Headphones', image: 'https://placehold.co/300x300?text=Headphones', quantity: 1, priceSnapshot: 79.99 },
+      { uid: 'i2', orderUid: 'o1', productUid: '8', name: 'JavaScript: The Good Parts', image: 'https://placehold.co/300x300?text=JS+Book', quantity: 2, priceSnapshot: 24.99 },
     ],
-    total: 129.97,
-    status: 'Delivered',
-    date: '2026-02-15'
   },
   {
-    id: 'o2',
-    userId: 'u1',
+    order: {
+      uid: 'o2',
+      status: 'SHIPPED',
+      totalAmount: 129.99,
+      createdAt: '2026-03-01T14:00:00.000Z',
+      updatedAt: '2026-03-01T14:00:00.000Z',
+    },
     items: [
-      { productId: '4', name: 'Mechanical Keyboard', price: 129.99, qty: 1 }
+      { uid: 'i3', orderUid: 'o2', productUid: '4', name: 'Mechanical Keyboard', image: 'https://placehold.co/300x300?text=Keyboard', quantity: 1, priceSnapshot: 129.99 },
     ],
-    total: 129.99,
-    status: 'Shipped',
-    date: '2026-03-01'
   },
   {
-    id: 'o3',
-    userId: 'u2',
+    order: {
+      uid: 'o3',
+      status: 'PENDING',
+      totalAmount: 87.96,
+      createdAt: '2026-03-10T09:00:00.000Z',
+      updatedAt: '2026-03-10T09:00:00.000Z',
+    },
     items: [
-      { productId: '5', name: 'Classic Cotton T-Shirt', price: 19.99, qty: 3 },
-      { productId: '11', name: 'Ceramic Coffee Mug Set', price: 27.99, qty: 1 }
+      { uid: 'i4', orderUid: 'o3', productUid: '5', name: 'Classic Cotton T-Shirt', image: 'https://placehold.co/300x300?text=T-Shirt', quantity: 3, priceSnapshot: 19.99 },
+      { uid: 'i5', orderUid: 'o3', productUid: '11', name: 'Ceramic Coffee Mug Set', image: 'https://placehold.co/300x300?text=Mug+Set', quantity: 1, priceSnapshot: 27.99 },
     ],
-    total: 87.96,
-    status: 'Processing',
-    date: '2026-03-10'
-  }
+  },
 ];

@@ -12,11 +12,6 @@ export const template = `
 
       <!-- Page Header -->
       <div class="mb-8">
-        <nav class="flex items-center gap-1.5 text-xs text-gray-400 mb-3">
-          <a href="#/" class="hover:text-gray-600 transition-colors">Home</a>
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          <span class="text-gray-700 font-medium">Products</span>
-        </nav>
         <h1 class="text-2xl font-bold text-gray-900">All Products</h1>
       </div>
 

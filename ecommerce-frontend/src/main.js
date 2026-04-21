@@ -7,7 +7,7 @@ import { mockProducts, mockUsers, mockOrders } from './storage/mockData.js';
 import { config } from './config/config.js';
 
 lsSet('products', mockProducts);
-seedStorage('orders', mockOrders);
+lsSet('orders', mockOrders);
 if (config.USE_MOCK) {
   seedStorage('users', mockUsers);
 }

@@ -13,13 +13,6 @@ export const template = `
           <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">My Wishlist</h1>
           <p id="wishlist-subtitle" class="text-gray-400 text-sm mt-1"></p>
         </div>
-        <a href="#/products"
-           class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors flex-shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-          </svg>
-          Continue Shopping
-        </a>
       </div>
 
       <div id="wishlist-content"></div>
