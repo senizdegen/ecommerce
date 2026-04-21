@@ -134,6 +134,35 @@ class OrderService:
 
         return result_list
 
+    async def update_order_status(self, order_uid: str, new_status: str, session: AsyncSession):
+        VALID_STATUSES = {"PENDING", "PAID", "CANCELLED"}
+        if new_status not in VALID_STATUSES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid status. Must be one of: {', '.join(VALID_STATUSES)}"
+            )
+
+        try:
+            order_uuid = uuid.UUID(order_uid)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid uid")
+
+        result = await session.execute(select(Order).where(Order.uid == order_uuid))
+        order = result.scalars().first()
+
+        if order is None:
+            return None
+
+        items_result = await session.execute(select(OrderItem).where(OrderItem.order_uid == order.uid))
+        items = items_result.scalars().all()
+
+        order.status = new_status
+        order.updated_at = datetime.now()
+        await session.commit()
+        await session.refresh(order)
+
+        return {"order": order, "items": items}
+
     async def cancel_order(self, order_uid: str, user_uid: str, session: AsyncSession):
         order_data = await self.get_order_by_uid(order_uid, user_uid, session)
 

@@ -4,7 +4,7 @@ from typing import List
 
 from .database import get_session
 from .service import OrderService
-from .schemas import OrderModel, OrderWithItemsResponse
+from .schemas import OrderModel, OrderWithItemsResponse, StatusUpdateRequest
 from .dependencies import AccessTokenBearer
 
 
@@ -59,6 +59,22 @@ async def get_order(
         )
 
     return order
+
+
+@order_router.patch("/{order_uid}/status", response_model=OrderWithItemsResponse)
+async def update_order_status(
+    order_uid: str,
+    body: StatusUpdateRequest,
+    token_details: dict = Depends(access_token_bearer),
+    session: AsyncSession = Depends(get_session)
+):
+    updated = await order_service.update_order_status(order_uid, body.status, session)
+    if updated is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order with provided uid not found"
+        )
+    return updated
 
 
 @order_router.post("/{order_uid}/cancel", response_model=OrderWithItemsResponse)

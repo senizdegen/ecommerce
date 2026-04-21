@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from './api.js';
+import { apiGet, apiPost, apiPatch } from './api.js';
 import { config } from '../config/config.js';
 import { mockOrders } from '../storage/mockData.js';
 
@@ -32,6 +32,17 @@ export async function getAllOrders() {
   }
   const data = await apiGet(config.API.order, '/orders/admin/all');
   return data.map(normalizeOrder);
+}
+
+export async function updateOrderStatus(id, newStatus) {
+  if (config.MOCK.orders) {
+    const order = mockStore.find(o => o.id === id);
+    if (!order) throw new Error('Order not found');
+    order.status = newStatus;
+    return { ...order };
+  }
+  const data = await apiPatch(config.API.order, `/orders/${id}/status`, { status: newStatus });
+  return normalizeOrder(data);
 }
 
 export async function cancelOrder(id) {

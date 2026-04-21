@@ -15,5 +15,5 @@ export const config = {
     orders: false,
   },
 
-  APP_NAME: 'AdminPanel',
+  APP_NAME: 'Shopify Admin Panel',
 };

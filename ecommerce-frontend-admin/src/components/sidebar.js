@@ -53,8 +53,7 @@ function getSidebarHTML() {
 
       <!-- Nav -->
       <nav class="flex-1 px-3 py-5 space-y-1">
-        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider px-3 mb-3">Main Menu</p>
-        ${navItem('#/dashboard', 'Dashboard', `
+${navItem('#/dashboard', 'Dashboard', `
           <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM14 13a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5z"/>
           </svg>

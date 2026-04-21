@@ -24,3 +24,6 @@ class OrderModel(BaseModel):
 class OrderWithItemsResponse(BaseModel):
     order: OrderModel
     items: List[OrderItemModel]
+
+class StatusUpdateRequest(BaseModel):
+    status: str

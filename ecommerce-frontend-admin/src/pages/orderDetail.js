@@ -1,5 +1,6 @@
-import { getAllOrders, cancelOrder } from '../services/orderService.js';
+import { getAllOrders, updateOrderStatus } from '../services/orderService.js';
 import { findCustomerById } from '../services/customerService.js';
+import { getById as getProductById } from '../services/productService.js';
 import { apiGet } from '../services/api.js';
 import { config } from '../config/config.js';
 import { showToast } from '../components/toast.js';
@@ -35,6 +36,10 @@ function formatDate(iso) {
 
 async function getProductName(productUid) {
   try {
+    if (config.MOCK.products) {
+      const p = await getProductById(productUid);
+      return p ? p.name : `Product ${productUid.slice(0, 8)}…`;
+    }
     const p = await apiGet(config.API.feed, `/products/${productUid}`);
     return p.name;
   } catch {
@@ -90,14 +95,18 @@ export async function init({ id }) {
         </a>
         <div class="flex items-center gap-3">
           ${statusBadge(currentOrder.status)}
-          ${currentOrder.status === 'PENDING' ? `
-            <button id="cancel-btn"
-              class="flex items-center gap-2 border border-red-500/40 text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-              Cancel Order
-            </button>` : ''}
+          <div class="flex items-center gap-2">
+            <select id="status-select"
+              class="border border-gray-600 rounded-xl px-3 py-2 text-sm bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">
+              <option value="PENDING"  ${currentOrder.status === 'PENDING'  ? 'selected' : ''}>PENDING</option>
+              <option value="PAID"     ${currentOrder.status === 'PAID'     ? 'selected' : ''}>PAID</option>
+              <option value="CANCELLED"${currentOrder.status === 'CANCELLED'? 'selected' : ''}>CANCELLED</option>
+            </select>
+            <button id="save-status-btn"
+              class="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+              Save
+            </button>
+          </div>
         </div>
       </div>
 
@@ -204,18 +213,21 @@ export async function init({ id }) {
       </div>
     `;
 
-    document.getElementById('cancel-btn')?.addEventListener('click', async () => {
-      const btn = document.getElementById('cancel-btn');
+    document.getElementById('save-status-btn')?.addEventListener('click', async () => {
+      const select = document.getElementById('status-select');
+      const btn = document.getElementById('save-status-btn');
+      const newStatus = select.value;
+      if (newStatus === currentOrder.status) return;
       btn.disabled = true;
-      btn.textContent = 'Cancelling…';
+      btn.textContent = 'Saving…';
       try {
-        const updated = await cancelOrder(currentOrder.id);
-        showToast('Order cancelled', 'success');
+        const updated = await updateOrderStatus(currentOrder.id, newStatus);
+        showToast('Status updated', 'success');
         renderContent(updated);
       } catch (err) {
         showToast(err.message, 'error');
         btn.disabled = false;
-        btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg> Cancel Order`;
+        btn.textContent = 'Save';
       }
     });
   }
