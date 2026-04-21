@@ -1,15 +1,13 @@
-import { getAllOrders, updateOrderStatus } from '../services/orderService.js';
-import { lsGetAll } from '../storage/localStorage.js';
-import { showToast } from '../components/toast.js';
+import { getAllOrders } from '../services/orderService.js';
+import { findAllCustomers } from '../services/customerService.js';
 import { navigate } from '../core/router.js';
 
-const STATUSES = ['Processing', 'Shipped', 'Delivered', 'Cancelled'];
+const STATUSES = ['PENDING', 'PAID', 'CANCELLED'];
 
 const STATUS_CONFIG = {
-  Processing: { cls: 'bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30',   dot: 'bg-amber-500' },
-  Shipped:    { cls: 'bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/30',      dot: 'bg-blue-500' },
-  Delivered:  { cls: 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30', dot: 'bg-emerald-500' },
-  Cancelled:  { cls: 'bg-red-500/10 text-red-400 ring-1 ring-red-500/30',         dot: 'bg-red-500' }
+  PENDING:   { cls: 'bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30',       dot: 'bg-amber-500' },
+  PAID:      { cls: 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30', dot: 'bg-emerald-500' },
+  CANCELLED: { cls: 'bg-red-500/10 text-red-400 ring-1 ring-red-500/30',             dot: 'bg-red-500' },
 };
 
 function statusBadge(status) {
@@ -19,9 +17,13 @@ function statusBadge(status) {
   </span>`;
 }
 
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 export const template = `
   <div class="max-w-7xl mx-auto">
-    <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-y-2 mb-6">
       <div>
         <h1 class="text-2xl font-bold text-white">Orders</h1>
@@ -29,7 +31,6 @@ export const template = `
       </div>
     </div>
 
-    <!-- Filters -->
     <div class="bg-gray-800 rounded-2xl border border-gray-700 p-4 mb-5 flex flex-wrap gap-3 shadow-sm">
       <div class="relative flex-1 min-w-52">
         <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,10 +46,8 @@ export const template = `
       </select>
     </div>
 
-    <!-- Status summary -->
-    <div id="status-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5"></div>
+    <div id="status-summary" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5"></div>
 
-    <!-- Table -->
     <div class="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden shadow-sm">
       <div id="orders-table"></div>
       <div id="pagination" class="flex items-center justify-between px-5 py-3 border-t border-gray-700"></div>
@@ -58,36 +57,58 @@ export const template = `
 
 export async function init() {
   const PAGE_SIZE = 10;
-  let allOrders = await getAllOrders();
-  const allUsers = lsGetAll('users');
+  let allOrders = [];
+  let allCustomers = [];
+
+  try {
+    [allOrders, allCustomers] = await Promise.all([
+      getAllOrders(),
+      findAllCustomers().catch(() => []),
+    ]);
+  } catch (err) {
+    document.getElementById('orders-table').innerHTML = `
+      <div class="p-16 text-center">
+        <p class="text-red-400 font-medium">Failed to load orders</p>
+        <p class="text-gray-500 text-sm mt-1">${err.message}</p>
+      </div>`;
+    return;
+  }
+
   let statusFilter = '';
   let searchQuery = '';
   let currentPage = 1;
 
-  function getUserName(userId) {
-    const u = allUsers.find(u => u.id === String(userId));
-    return u ? `${u.firstName} ${u.lastName}` : String(userId);
+  function getUserName(userUid) {
+    const c = allCustomers.find(c => String(c.id) === String(userUid));
+    return c ? `${c.firstName} ${c.lastName}`.trim() : String(userUid).slice(0, 8) + '…';
   }
 
-  // Status summary cards
+  function getFiltered() {
+    return allOrders
+      .filter(o => !statusFilter || o.status === statusFilter)
+      .filter(o => {
+        if (!searchQuery) return true;
+        const q = searchQuery.toLowerCase();
+        return o.id.toLowerCase().includes(q) || getUserName(o.userUid).toLowerCase().includes(q);
+      });
+  }
+
   function renderStatusSummary() {
     const summaryEl = document.getElementById('status-summary');
     if (!summaryEl) return;
-    const counts = STATUSES.reduce((acc, s) => {
-      acc[s] = allOrders.filter(o => o.status === s).length;
-      return acc;
-    }, {});
     const cfg = STATUS_CONFIG;
-    summaryEl.innerHTML = STATUSES.map(s => `
-      <div class="bg-gray-800 rounded-xl border border-gray-700 px-4 py-3 flex items-center gap-3 shadow-sm cursor-pointer hover:border-red-500 transition-colors ${statusFilter === s ? 'border-red-500 ring-2 ring-red-900/40' : ''}"
-           data-status-quick="${s}">
-        <span class="w-2.5 h-2.5 rounded-full ${cfg[s].dot} flex-shrink-0"></span>
-        <div>
-          <p class="text-lg font-bold text-white">${counts[s]}</p>
-          <p class="text-xs text-gray-400">${s}</p>
-        </div>
-      </div>
-    `).join('');
+    summaryEl.innerHTML = STATUSES.map(s => {
+      const count = allOrders.filter(o => o.status === s).length;
+      return `
+        <div class="bg-gray-800 rounded-xl border border-gray-700 px-4 py-3 flex items-center gap-3 shadow-sm cursor-pointer hover:border-red-500 transition-colors ${statusFilter === s ? 'border-red-500 ring-2 ring-red-900/40' : ''}"
+             data-status-quick="${s}">
+          <span class="w-2.5 h-2.5 rounded-full ${cfg[s]?.dot || 'bg-gray-400'} flex-shrink-0"></span>
+          <div>
+            <p class="text-lg font-bold text-white">${count}</p>
+            <p class="text-xs text-gray-400">${s}</p>
+          </div>
+        </div>`;
+    }).join('');
 
     summaryEl.querySelectorAll('[data-status-quick]').forEach(el => {
       el.addEventListener('click', () => {
@@ -99,17 +120,6 @@ export async function init() {
         renderTable();
       });
     });
-  }
-
-  function getFiltered() {
-    return [...allOrders]
-      .reverse()
-      .filter(o => !statusFilter || o.status === statusFilter)
-      .filter(o => {
-        if (!searchQuery) return true;
-        const q = searchQuery.toLowerCase();
-        return o.id.toLowerCase().includes(q) || getUserName(o.userId).toLowerCase().includes(q);
-      });
   }
 
   function renderTable() {
@@ -148,41 +158,34 @@ export async function init() {
               </tr>
             </thead>
             <tbody>
-              ${paginated.map(o => {
-                const itemsSummary = (o.items || []).map(i => `${i.name} ×${i.qty}`).join(', ');
-                return `
-                  <tr class="border-b border-gray-700/50 hover:bg-gray-700/50 transition-colors cursor-pointer" data-order-id="${o.id}">
-                    <td class="py-3.5 px-5">
-                      <span class="font-mono text-xs font-semibold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-lg">#${o.id.toUpperCase()}</span>
-                    </td>
-                    <td class="py-3.5 px-4 font-semibold text-white">${getUserName(o.userId)}</td>
-                    <td class="py-3.5 px-4 text-gray-400 max-w-44">
-                      <span class="line-clamp-1 text-xs">${itemsSummary || '—'}</span>
-                      <span class="text-xs text-gray-500">${(o.items || []).length} item${(o.items || []).length !== 1 ? 's' : ''}</span>
-                    </td>
-                    <td class="py-3.5 px-4 font-bold text-white">$${(o.total || 0).toFixed(2)}</td>
-                    <td class="py-3.5 px-4">${statusBadge(o.status)}</td>
-                    <td class="py-3.5 px-4 text-gray-500 text-xs">${o.date || '—'}</td>
-                    <td class="py-3.5 px-4 text-right">
-                      <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                      </svg>
-                    </td>
-                  </tr>
-                `;
-              }).join('')}
+              ${paginated.map(o => `
+                <tr class="border-b border-gray-700/50 hover:bg-gray-700/50 transition-colors cursor-pointer" data-order-id="${o.id}">
+                  <td class="py-3.5 px-5">
+                    <span class="font-mono text-xs font-semibold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-lg">#${o.id.slice(0, 8).toUpperCase()}</span>
+                  </td>
+                  <td class="py-3.5 px-4 font-semibold text-white">${getUserName(o.userUid)}</td>
+                  <td class="py-3.5 px-4 text-gray-400 text-xs">
+                    ${o.items.length} item${o.items.length !== 1 ? 's' : ''}
+                  </td>
+                  <td class="py-3.5 px-4 font-bold text-white">$${o.totalAmount.toFixed(2)}</td>
+                  <td class="py-3.5 px-4">${statusBadge(o.status)}</td>
+                  <td class="py-3.5 px-4 text-gray-500 text-xs">${formatDate(o.createdAt)}</td>
+                  <td class="py-3.5 px-4 text-right">
+                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </td>
+                </tr>`).join('')}
             </tbody>
           </table>
         </div>`;
     }
 
-    // Row click → detail
     tableEl.addEventListener('click', (e) => {
       const row = e.target.closest('[data-order-id]');
       if (row) navigate(`/orders/${row.dataset.orderId}`);
     });
 
-    // Pagination
     const paginationEl = document.getElementById('pagination');
     if (!paginationEl) return;
     if (totalPages <= 1 && filtered.length > 0) {

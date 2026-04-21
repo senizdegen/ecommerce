@@ -79,3 +79,25 @@ export async function apiDelete(baseUrl, path) {
 
   return handleResponse(res);
 }
+
+export async function apiPostForm(baseUrl, path, formData) {
+  const token = getAccessToken();
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const res = await fetch(`${baseUrl}${path}`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+  return handleResponse(res);
+}
+
+export async function apiPatchForm(baseUrl, path, formData) {
+  const token = getAccessToken();
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const res = await fetch(`${baseUrl}${path}`, {
+    method: 'PATCH',
+    headers,
+    body: formData,
+  });
+  return handleResponse(res);
+}

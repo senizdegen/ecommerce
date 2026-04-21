@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPatch, apiDelete } from './api.js';
+import { apiGet, apiPostForm, apiPatchForm, apiDelete } from './api.js';
 import { config } from '../config/config.js';
 import { mockProducts } from '../storage/mockData.js';
 
@@ -11,7 +11,7 @@ function normalize(p) {
     stock: p.available_quantity ?? p.availableQuantity ?? null,
     availableQuantity: p.available_quantity ?? p.availableQuantity ?? null,
     categoryName: p.categoryName ?? null,
-    image: p.image ?? null,
+    image: p.image_url ?? p.image ?? null,
     rating: p.rating ?? 0,
   };
 }
@@ -53,43 +53,44 @@ export async function createProduct(data) {
       image: null,
       rating: 0,
     };
-
     mockStore.push(newProduct);
     return newProduct;
   }
 
-  return apiPost(config.API.product, '/products/', {
-    name: data.name,
-    description: data.description,
-    price: parseFloat(data.price),
-    available_quantity: parseInt(data.available_quantity, 10),
-  });
+  const formData = new FormData();
+  formData.append('name', data.name);
+  formData.append('description', data.description);
+  formData.append('price', String(parseFloat(data.price)));
+  formData.append('available_quantity', String(parseInt(data.available_quantity, 10)));
+  if (data.image) {
+    formData.append('image', data.image);
+  }
+
+  return apiPostForm(config.API.product, '/products/', formData);
 }
 
 export async function updateProduct(id, data) {
   if (config.MOCK.products) {
     const idx = mockStore.findIndex((p) => p.id === id);
-
-    if (idx === -1) {
-      throw new Error('Product not found');
-    }
-
+    if (idx === -1) throw new Error('Product not found');
     mockStore[idx] = {
       ...mockStore[idx],
       name: data.name,
       description: data.description,
       price: parseFloat(data.price),
     };
-
     return mockStore[idx];
   }
 
-  const updated = await apiPatch(config.API.product, `/products/${id}`, {
-    name: data.name,
-    description: data.description,
-    price: parseFloat(data.price),
-  });
+  const formData = new FormData();
+  formData.append('name', data.name);
+  formData.append('description', data.description);
+  formData.append('price', String(parseFloat(data.price)));
+  if (data.image) {
+    formData.append('image', data.image);
+  }
 
+  const updated = await apiPatchForm(config.API.product, `/products/${id}`, formData);
   return normalize(updated);
 }
 

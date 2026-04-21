@@ -51,6 +51,23 @@ export function showProductFormModal({ product = null, onSave }) {
                 placeholder="Product description...">${product?.description || ''}</textarea>
             </div>
 
+            <!-- Image upload -->
+            <div>
+              <label class="${labelCls}">Product Image</label>
+              <div id="pf-preview-wrap" class="${isEdit && product?.image ? '' : 'hidden'} mb-2 rounded-xl overflow-hidden bg-gray-900 border border-gray-600">
+                <img id="pf-image-preview" src="${isEdit && product?.image ? product.image : ''}" alt="Preview"
+                  class="w-full h-36 object-contain" />
+              </div>
+              <input type="file" id="pf-image" accept="image/*"
+                class="w-full text-sm text-gray-400 border border-gray-600 rounded-xl bg-gray-700
+                  file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0
+                  file:bg-red-500 file:text-white file:text-xs file:font-semibold
+                  hover:file:bg-red-600 file:cursor-pointer cursor-pointer transition-all" />
+              <p class="text-xs text-gray-500 mt-1.5">
+                ${isEdit ? 'Leave empty to keep the current image.' : 'Optional.'} JPEG, PNG, WebP accepted.
+              </p>
+            </div>
+
           </form>
         </div>
 
@@ -80,16 +97,29 @@ export function showProductFormModal({ product = null, onSave }) {
     if (e.target.id === 'pf-overlay') close();
   });
 
+  document.getElementById('pf-image').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const wrap = document.getElementById('pf-preview-wrap');
+    const preview = document.getElementById('pf-image-preview');
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+      wrap.classList.remove('hidden');
+    } else if (!isEdit || !product?.image) {
+      wrap.classList.add('hidden');
+    }
+  });
+
   document.getElementById('product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('pf-name').value.trim();
     const price = document.getElementById('pf-price').value;
     const description = document.getElementById('pf-description').value.trim();
+    const imageFile = document.getElementById('pf-image').files[0] || null;
 
     if (!name) { alert('Product name is required'); return; }
     if (!price || isNaN(price)) { alert('Valid price is required'); return; }
 
-    const saveData = { name, price, description };
+    const saveData = { name, price, description, image: imageFile };
 
     if (!isEdit) {
       const quantity = document.getElementById('pf-quantity').value;

@@ -5,14 +5,14 @@ export const config = {
     product: 'http://localhost:8003/api/v1',
     feed: 'http://localhost:8007/api/v1/feed',
     cart: 'http://localhost:8005/api/v1',
-    order: 'http://localhost:8005/api/v1',
+    order: 'http://localhost:8006/api/v1',
   },
 
   MOCK: {
     auth: false,
     products: false,
     customers: false,
-    orders: true,
+    orders: false,
   },
 
   APP_NAME: 'AdminPanel',

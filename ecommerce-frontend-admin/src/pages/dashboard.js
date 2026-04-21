@@ -1,4 +1,6 @@
-import { lsGetAll } from '../storage/localStorage.js';
+import { getAll } from '../services/productService.js';
+import { findAllCustomers } from '../services/customerService.js';
+import { getAllOrders } from '../services/orderService.js';
 import { monthlyStats } from '../storage/mockData.js';
 
 export const template = `
@@ -64,13 +66,17 @@ export const template = `
 
 function statusBadge(status) {
   const map = {
-    Processing: 'bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30',
-    Shipped:    'bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/30',
-    Delivered:  'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30',
-    Cancelled:  'bg-red-500/10 text-red-400 ring-1 ring-red-500/30'
+    PENDING:   'bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30',
+    PAID:      'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30',
+    CANCELLED: 'bg-red-500/10 text-red-400 ring-1 ring-red-500/30',
   };
   const cls = map[status] || 'bg-gray-700 text-gray-300';
   return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cls}">${status}</span>`;
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function trendArrow(pct) {
@@ -88,11 +94,13 @@ function calcTrend(current, previous) {
   return Math.round(((current - previous) / previous) * 100);
 }
 
-export function init() {
-  const products = lsGetAll('products');
-  const users = lsGetAll('users');
-  const orders = lsGetAll('orders');
-  const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+export async function init() {
+  const [products, customers, orders] = await Promise.all([
+    getAll().catch(() => []),
+    findAllCustomers().catch(() => []),
+    getAllOrders().catch(() => []),
+  ]);
+  const revenue = orders.reduce((s, o) => s + (o.totalAmount || 0), 0);
 
   // Trend: compare last 2 months from monthlyStats
   const lastMonth = monthlyStats[monthlyStats.length - 1];
@@ -121,7 +129,7 @@ export function init() {
     },
     {
       label: 'Total Customers',
-      value: users.length,
+      value: customers.length,
       trend: 0,
       bgIcon: 'bg-violet-500/10',
       iconColor: 'text-violet-500',
@@ -161,23 +169,23 @@ export function init() {
   topProductsList.innerHTML = topProducts.map((p, i) => `
     <div class="flex items-center gap-3">
       <span class="text-xs font-bold text-gray-500 w-4">${i + 1}</span>
-      <img src="${p.image}" alt="${p.name}" class="w-8 h-8 rounded-lg object-cover border border-gray-700 flex-shrink-0" />
+      ${p.image ? `<img src="${p.image}" alt="${p.name}" class="w-8 h-8 rounded-lg object-cover border border-gray-700 flex-shrink-0" />` : `<div class="w-8 h-8 rounded-lg bg-gray-700 flex-shrink-0"></div>`}
       <div class="flex-1 min-w-0">
         <p class="text-sm font-medium text-white truncate">${p.name}</p>
-        <p class="text-xs text-gray-500">${p.categoryName}</p>
+        <p class="text-xs text-gray-500">${p.categoryName || '—'}</p>
       </div>
       <span class="text-sm font-semibold text-gray-200">$${p.price.toFixed(2)}</span>
     </div>
   `).join('');
 
-  // Recent orders
-  const allUsers = lsGetAll('users');
-  const getUserName = (userId) => {
-    const u = allUsers.find(u => u.id === String(userId));
-    return u ? `${u.firstName} ${u.lastName}` : userId;
+  const getUserName = (userUid) => {
+    const c = customers.find(c => String(c.id) === String(userUid));
+    return c ? `${c.firstName} ${c.lastName}`.trim() : String(userUid).slice(0, 8) + '…';
   };
 
-  const recentOrders = [...orders].reverse().slice(0, 5);
+  const recentOrders = [...orders]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
   const ordersContainer = document.getElementById('recent-orders-table');
 
   if (recentOrders.length === 0) {
@@ -199,11 +207,11 @@ export function init() {
             ${recentOrders.map(o => `
               <tr class="border-b border-gray-700/50 hover:bg-gray-700/50 transition-colors cursor-pointer"
                   onclick="window.location.hash='#/orders/${o.id}'">
-                <td class="py-3 px-3 font-mono text-xs text-gray-500 font-medium">#${o.id.toUpperCase()}</td>
-                <td class="py-3 px-3 font-medium text-white">${getUserName(o.userId)}</td>
-                <td class="py-3 px-3 font-semibold text-white">$${(o.total || 0).toFixed(2)}</td>
+                <td class="py-3 px-3 font-mono text-xs text-red-500 font-medium bg-red-500/10 rounded">#${o.id.slice(0, 8).toUpperCase()}</td>
+                <td class="py-3 px-3 font-medium text-white">${getUserName(o.userUid)}</td>
+                <td class="py-3 px-3 font-semibold text-white">$${(o.totalAmount || 0).toFixed(2)}</td>
                 <td class="py-3 px-3">${statusBadge(o.status)}</td>
-                <td class="py-3 px-3 text-gray-500 text-xs">${o.date || '-'}</td>
+                <td class="py-3 px-3 text-gray-500 text-xs">${formatDate(o.createdAt)}</td>
               </tr>
             `).join('')}
           </tbody>

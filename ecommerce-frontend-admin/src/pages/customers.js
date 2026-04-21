@@ -1,5 +1,5 @@
 import { findAllCustomers, deleteCustomer } from '../services/customerService.js';
-import { lsGetAll } from '../storage/localStorage.js';
+import { getAllOrders } from '../services/orderService.js';
 import { showToast } from '../components/toast.js';
 import { showModal } from '../components/modal.js';
 import { navigate } from '../core/router.js';
@@ -46,8 +46,12 @@ function avatarColor(id) {
 export async function init() {
   const PAGE_SIZE = 10;
   let allCustomers = [];
+  let allOrders = [];
   try {
-    allCustomers = await findAllCustomers();
+    [allCustomers, allOrders] = await Promise.all([
+      findAllCustomers(),
+      getAllOrders().catch(() => []),
+    ]);
   } catch (err) {
     document.getElementById('customers-table').innerHTML = `
       <div class="p-16 text-center">
@@ -56,14 +60,13 @@ export async function init() {
       </div>`;
     return;
   }
-  const allOrders = lsGetAll('orders');
   let searchQuery = '';
   let currentPage = 1;
 
   // Build order stats per customer
   function getCustomerStats(customerId) {
-    const customerOrders = allOrders.filter(o => o.userId === customerId);
-    const totalSpent = customerOrders.reduce((s, o) => s + (o.total || 0), 0);
+    const customerOrders = allOrders.filter(o => String(o.userUid) === String(customerId));
+    const totalSpent = customerOrders.reduce((s, o) => s + (o.totalAmount || 0), 0);
     return { orderCount: customerOrders.length, totalSpent };
   }
 

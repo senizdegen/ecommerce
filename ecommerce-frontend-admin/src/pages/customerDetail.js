@@ -1,5 +1,5 @@
 import { findCustomerById, deleteCustomer } from '../services/customerService.js';
-import { lsGetAll } from '../storage/localStorage.js';
+import { getAllOrders } from '../services/orderService.js';
 import { showToast } from '../components/toast.js';
 import { showModal } from '../components/modal.js';
 import { navigate } from '../core/router.js';
@@ -15,17 +15,21 @@ export const template = `
 `;
 
 const STATUS_CONFIG = {
-  Processing: { cls: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200', dot: 'bg-amber-500' },
-  Shipped:    { cls: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200',    dot: 'bg-blue-500' },
-  Delivered:  { cls: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200', dot: 'bg-emerald-500' },
-  Cancelled:  { cls: 'bg-red-50 text-red-700 ring-1 ring-red-200',       dot: 'bg-red-500' }
+  PENDING:   { cls: 'bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30',       dot: 'bg-amber-500' },
+  PAID:      { cls: 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30', dot: 'bg-emerald-500' },
+  CANCELLED: { cls: 'bg-red-500/10 text-red-400 ring-1 ring-red-500/30',             dot: 'bg-red-500' },
 };
 
 function statusBadge(status) {
-  const cfg = STATUS_CONFIG[status] || { cls: 'bg-slate-100 text-slate-700', dot: 'bg-slate-400' };
+  const cfg = STATUS_CONFIG[status] || { cls: 'bg-gray-700 text-gray-300', dot: 'bg-gray-400' };
   return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.cls}">
     <span class="w-1.5 h-1.5 rounded-full ${cfg.dot} flex-shrink-0"></span>${status}
   </span>`;
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 const AVATAR_COLORS = [
@@ -40,21 +44,33 @@ export async function init({ id }) {
   const contentEl = document.getElementById('customer-detail-content');
   if (!contentEl) return;
 
-  const customer = await findCustomerById(id);
+  let customer;
+  let allOrders = [];
+  try {
+    [customer, allOrders] = await Promise.all([
+      findCustomerById(id),
+      getAllOrders().catch(() => []),
+    ]);
+  } catch (err) {
+    contentEl.innerHTML = `<div class="text-center py-20"><p class="text-red-400">${err.message}</p></div>`;
+    return;
+  }
+
   if (!customer) {
     contentEl.innerHTML = `
       <div class="text-center py-20">
         <p class="text-slate-500 mb-4">Customer not found.</p>
-        <a href="#/customers" class="text-orange-600 hover:underline text-sm font-medium">← Back to Customers</a>
+        <a href="#/customers" class="text-red-500 hover:underline text-sm font-medium">← Back to Customers</a>
       </div>`;
     return;
   }
 
-  const allOrders = lsGetAll('orders');
-  const customerOrders = allOrders.filter(o => o.userId === customer.id).reverse();
-  const totalSpent = customerOrders.reduce((s, o) => s + (o.total || 0), 0);
+  const customerOrders = allOrders
+    .filter(o => String(o.userUid) === String(customer.id))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const totalSpent = customerOrders.reduce((s, o) => s + (o.totalAmount || 0), 0);
   const avgOrder = customerOrders.length > 0 ? totalSpent / customerOrders.length : 0;
-  const deliveredCount = customerOrders.filter(o => o.status === 'Delivered').length;
+  const paidCount = customerOrders.filter(o => o.status === 'PAID').length;
 
   const fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
   const initial = fullName.charAt(0).toUpperCase();
@@ -67,7 +83,6 @@ export async function init({ id }) {
     : 'No address on file';
 
   contentEl.innerHTML = `
-    <!-- Back -->
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <a href="#/customers" class="flex items-center gap-2 text-gray-400 hover:text-red-400 transition-colors text-sm font-medium group">
         <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +100,6 @@ export async function init({ id }) {
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-      <!-- Profile card -->
       <div class="bg-gray-800 rounded-2xl border border-gray-700 p-6">
         <div class="flex flex-col items-center text-center">
           <div class="w-20 h-20 rounded-2xl bg-gradient-to-br ${avatarGrad} text-white flex items-center justify-center text-3xl font-bold mb-4 shadow-lg">
@@ -118,13 +132,12 @@ export async function init({ id }) {
         </div>
       </div>
 
-      <!-- Stats -->
       <div class="lg:col-span-2 grid grid-cols-2 gap-3">
         ${[
           { label: 'Total Orders', value: customerOrders.length, icon: 'bg-red-500/10 text-red-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>` },
           { label: 'Total Spent', value: `$${totalSpent.toFixed(2)}`, icon: 'bg-emerald-500/10 text-emerald-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
           { label: 'Avg Order Value', value: `$${avgOrder.toFixed(2)}`, icon: 'bg-violet-500/10 text-violet-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>` },
-          { label: 'Delivered Orders', value: deliveredCount, icon: 'bg-amber-500/10 text-amber-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>` },
+          { label: 'Paid Orders', value: paidCount, icon: 'bg-amber-500/10 text-amber-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>` },
         ].map(s => `
           <div class="bg-gray-800 rounded-2xl border border-gray-700 p-5 flex items-center gap-4">
             <div class="w-10 h-10 rounded-xl ${s.icon} flex items-center justify-center flex-shrink-0">${s.svg}</div>
@@ -137,7 +150,6 @@ export async function init({ id }) {
       </div>
     </div>
 
-    <!-- Order history -->
     <div class="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
         <h3 class="font-semibold text-white">Order History</h3>
@@ -161,14 +173,14 @@ export async function init({ id }) {
                 ${customerOrders.map(o => `
                   <tr class="border-b border-gray-700/50 hover:bg-gray-700/50 transition-colors cursor-pointer" onclick="window.location.hash='#/orders/${o.id}'">
                     <td class="py-3.5 px-5">
-                      <span class="font-mono text-xs font-semibold text-red-400 bg-red-500/10 px-2.5 py-1 rounded-lg">#${o.id.toUpperCase()}</span>
+                      <span class="font-mono text-xs font-semibold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-lg">#${o.id.slice(0, 8).toUpperCase()}</span>
                     </td>
-                    <td class="py-3.5 px-4 text-gray-500 text-xs max-w-48">
-                      <span class="line-clamp-1">${(o.items || []).map(i => `${i.name} ×${i.qty}`).join(', ')}</span>
+                    <td class="py-3.5 px-4 text-gray-400 text-xs">
+                      ${o.items.length} item${o.items.length !== 1 ? 's' : ''}
                     </td>
-                    <td class="py-3.5 px-4 font-bold text-white">$${(o.total || 0).toFixed(2)}</td>
+                    <td class="py-3.5 px-4 font-bold text-white">$${(o.totalAmount || 0).toFixed(2)}</td>
                     <td class="py-3.5 px-4">${statusBadge(o.status)}</td>
-                    <td class="py-3.5 px-4 text-gray-500 text-xs">${o.date || '—'}</td>
+                    <td class="py-3.5 px-4 text-gray-500 text-xs">${formatDate(o.createdAt)}</td>
                     <td class="py-3.5 px-4">
                       <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
