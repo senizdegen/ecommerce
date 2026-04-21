@@ -9,10 +9,10 @@ export const config = {
   },
 
   MOCK: {
-    auth: false,
-    products: false,
-    customers: false,
-    orders: false,
+    auth: true,
+    products: true,
+    customers: true,
+    orders: true,
   },
 
   APP_NAME: 'AdminPanel',

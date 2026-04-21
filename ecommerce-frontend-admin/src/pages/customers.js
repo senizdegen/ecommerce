@@ -28,7 +28,7 @@ export const template = `
     <!-- Table -->
     <div class="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden shadow-sm">
       <div id="customers-table"></div>
-      <div id="pagination" class="flex items-center justify-between px-5 py-3 border-t border-gray-700"></div>
+      <div id="pagination" class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-gray-700"></div>
     </div>
   </div>
 `;
@@ -101,16 +101,47 @@ export async function init() {
         </div>`;
     } else {
       tableEl.innerHTML = `
-        <div class="overflow-x-auto">
+        <!-- Mobile cards -->
+        <div class="block md:hidden divide-y divide-gray-700/50">
+          ${paginated.map(c => {
+            const initial = (c.firstName || c.email || '?').charAt(0).toUpperCase();
+            const avColor = avatarColor(c.id);
+            const { orderCount, totalSpent } = getCustomerStats(c.id);
+            return `
+              <div class="px-4 py-4 flex items-center gap-3 cursor-pointer hover:bg-gray-700/40 active:bg-gray-700/60 transition-colors" data-customer-id="${c.id}">
+                <div class="w-10 h-10 rounded-full ${avColor} text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  ${initial}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-white text-sm truncate">${c.firstName || ''} ${c.lastName || ''}</p>
+                  <p class="text-xs text-gray-400 truncate">${c.email}</p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    ${orderCount} order${orderCount !== 1 ? 's' : ''}
+                    <span class="mx-1 text-gray-600">·</span>
+                    <span class="text-white font-medium">$${totalSpent.toFixed(2)}</span> spent
+                  </p>
+                </div>
+                <button data-action="delete" data-id="${c.id}"
+                  class="text-gray-500 hover:text-red-400 transition-colors p-2 rounded-lg hover:bg-red-500/10 flex-shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <!-- Desktop table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="bg-gray-800/50 border-b border-gray-700">
               <tr>
                 <th class="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Customer</th>
-                <th class="hidden md:table-cell text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Email</th>
+                <th class="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Email</th>
                 <th class="hidden lg:table-cell text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Address</th>
                 <th class="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Orders</th>
                 <th class="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Spent</th>
-                <th class="hidden sm:table-cell text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Joined</th>
+                <th class="hidden lg:table-cell text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Joined</th>
                 <th class="py-3 px-4"></th>
               </tr>
             </thead>
@@ -130,20 +161,14 @@ export async function init() {
                         <div class="w-9 h-9 rounded-full ${avColor} text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
                           ${initial}
                         </div>
-                        <div class="min-w-0">
-                          <p class="font-semibold text-white truncate">${c.firstName || ''} ${c.lastName || ''}</p>
-                          <p class="text-xs text-gray-500 md:hidden truncate">${c.email}</p>
-                        </div>
+                        <p class="font-semibold text-white truncate">${c.firstName || ''} ${c.lastName || ''}</p>
                       </div>
                     </td>
-                    <td class="hidden md:table-cell py-3.5 px-4 text-gray-300 max-w-48 truncate">${c.email}</td>
+                    <td class="py-3.5 px-4 text-gray-300 max-w-48 truncate">${c.email}</td>
                     <td class="hidden lg:table-cell py-3.5 px-4 text-gray-500 text-xs max-w-44 truncate">${addrStr}</td>
-                    <td class="py-3.5 px-4 whitespace-nowrap">
-                      <span class="font-semibold text-white">${orderCount}</span>
-                      <span class="text-gray-500 text-xs ml-1 hidden sm:inline">orders</span>
-                    </td>
-                    <td class="py-3.5 px-4 font-semibold text-white whitespace-nowrap">$${totalSpent.toFixed(2)}</td>
-                    <td class="hidden sm:table-cell py-3.5 px-4 text-gray-500 text-xs whitespace-nowrap">${c.registeredDate || '—'}</td>
+                    <td class="py-3.5 px-4 font-semibold text-white">${orderCount}</td>
+                    <td class="py-3.5 px-4 font-semibold text-white">$${totalSpent.toFixed(2)}</td>
+                    <td class="hidden lg:table-cell py-3.5 px-4 text-gray-500 text-xs">${c.registeredDate || '—'}</td>
                     <td class="py-3.5 px-4 text-right">
                       <button data-action="delete" data-id="${c.id}"
                         class="text-gray-500 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-500/10">

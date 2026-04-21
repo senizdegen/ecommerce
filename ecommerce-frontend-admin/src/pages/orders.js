@@ -32,25 +32,25 @@ export const template = `
     </div>
 
     <div class="bg-gray-800 rounded-2xl border border-gray-700 p-4 mb-5 flex flex-wrap gap-3 shadow-sm">
-      <div class="relative flex-1 min-w-52">
+      <div class="relative flex-1 min-w-0">
         <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
         </svg>
-        <input id="search-input" type="text" placeholder="Search by order ID or customer..."
+        <input id="search-input" type="text" placeholder="Search order ID or customer..."
           class="w-full pl-9 pr-3 py-2 border border-gray-600 rounded-xl text-sm bg-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" />
       </div>
       <select id="status-filter"
-        class="border border-gray-600 rounded-xl px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all bg-gray-700">
+        class="w-full sm:w-auto border border-gray-600 rounded-xl px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all bg-gray-700">
         <option value="">All Statuses</option>
         ${STATUSES.map(s => `<option value="${s}">${s}</option>`).join('')}
       </select>
     </div>
 
-    <div id="status-summary" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5"></div>
+    <div id="status-summary" class="grid grid-cols-3 gap-3 mb-5"></div>
 
     <div class="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden shadow-sm">
       <div id="orders-table"></div>
-      <div id="pagination" class="flex items-center justify-between px-5 py-3 border-t border-gray-700"></div>
+      <div id="pagination" class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-gray-700"></div>
     </div>
   </div>
 `;
@@ -100,12 +100,12 @@ export async function init() {
     summaryEl.innerHTML = STATUSES.map(s => {
       const count = allOrders.filter(o => o.status === s).length;
       return `
-        <div class="bg-gray-800 rounded-xl border border-gray-700 px-4 py-3 flex items-center gap-3 shadow-sm cursor-pointer hover:border-red-500 transition-colors ${statusFilter === s ? 'border-red-500 ring-2 ring-red-900/40' : ''}"
+        <div class="bg-gray-800 rounded-xl border border-gray-700 px-3 py-3 flex items-center gap-2 shadow-sm cursor-pointer hover:border-red-500 transition-colors ${statusFilter === s ? 'border-red-500 ring-2 ring-red-900/40' : ''}"
              data-status-quick="${s}">
-          <span class="w-2.5 h-2.5 rounded-full ${cfg[s]?.dot || 'bg-gray-400'} flex-shrink-0"></span>
-          <div>
-            <p class="text-lg font-bold text-white">${count}</p>
-            <p class="text-xs text-gray-400">${s}</p>
+          <span class="w-2 h-2 rounded-full ${cfg[s]?.dot || 'bg-gray-400'} flex-shrink-0"></span>
+          <div class="min-w-0">
+            <p class="text-base font-bold text-white leading-tight">${count}</p>
+            <p class="text-xs text-gray-400 truncate">${s}</p>
           </div>
         </div>`;
     }).join('');
@@ -144,7 +144,29 @@ export async function init() {
         </div>`;
     } else {
       tableEl.innerHTML = `
-        <div class="overflow-x-auto">
+        <!-- Mobile cards -->
+        <div class="block md:hidden divide-y divide-gray-700/50">
+          ${paginated.map(o => `
+            <div class="px-4 py-4 flex items-start justify-between gap-3 cursor-pointer hover:bg-gray-700/40 active:bg-gray-700/60 transition-colors" data-order-id="${o.id}">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                  <span class="font-mono text-xs font-semibold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-md">#${o.id.slice(0, 8).toUpperCase()}</span>
+                  ${statusBadge(o.status)}
+                </div>
+                <p class="font-semibold text-white text-sm truncate">${getUserName(o.userUid)}</p>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  <span class="font-semibold text-white">$${o.totalAmount.toFixed(2)}</span>
+                  <span class="mx-1 text-gray-600">·</span>${o.items.length} item${o.items.length !== 1 ? 's' : ''}
+                  <span class="mx-1 text-gray-600">·</span>${formatDate(o.createdAt)}
+                </p>
+              </div>
+              <svg class="w-4 h-4 text-gray-600 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>`).join('')}
+        </div>
+        <!-- Desktop table -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="bg-gray-800/50 border-b border-gray-700">
               <tr>
@@ -164,9 +186,7 @@ export async function init() {
                     <span class="font-mono text-xs font-semibold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-lg">#${o.id.slice(0, 8).toUpperCase()}</span>
                   </td>
                   <td class="py-3.5 px-4 font-semibold text-white">${getUserName(o.userUid)}</td>
-                  <td class="py-3.5 px-4 text-gray-400 text-xs">
-                    ${o.items.length} item${o.items.length !== 1 ? 's' : ''}
-                  </td>
+                  <td class="py-3.5 px-4 text-gray-400 text-xs">${o.items.length} item${o.items.length !== 1 ? 's' : ''}</td>
                   <td class="py-3.5 px-4 font-bold text-white">$${o.totalAmount.toFixed(2)}</td>
                   <td class="py-3.5 px-4">${statusBadge(o.status)}</td>
                   <td class="py-3.5 px-4 text-gray-500 text-xs">${formatDate(o.createdAt)}</td>

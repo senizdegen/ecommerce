@@ -119,7 +119,25 @@ export async function init({ id }) {
           <div class="px-6 py-4 border-b border-gray-700">
             <h3 class="font-semibold text-white">Order Items</h3>
           </div>
-          <div class="overflow-x-auto">
+          <!-- Mobile cards -->
+          <div class="block md:hidden divide-y divide-gray-700/50">
+            ${enrichedItems.map(item => `
+              <div class="px-4 py-4">
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <div class="min-w-0">
+                    <p class="font-semibold text-white text-sm">${item.name}</p>
+                    <p class="text-xs text-gray-500 font-mono mt-0.5">${item.productUid.slice(0, 8)}…</p>
+                  </div>
+                  <span class="bg-gray-700 text-gray-200 font-semibold px-2 py-0.5 rounded-lg text-xs flex-shrink-0">×${item.quantity}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-400">$${item.priceSnapshot.toFixed(2)} each</span>
+                  <span class="font-bold text-white text-sm">$${(item.priceSnapshot * item.quantity).toFixed(2)}</span>
+                </div>
+              </div>`).join('')}
+          </div>
+          <!-- Desktop table -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead class="bg-gray-800/50 border-b border-gray-700">
                 <tr>

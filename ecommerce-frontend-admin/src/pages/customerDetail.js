@@ -134,16 +134,16 @@ export async function init({ id }) {
 
       <div class="lg:col-span-2 grid grid-cols-2 gap-3">
         ${[
-          { label: 'Total Orders', value: customerOrders.length, icon: 'bg-red-500/10 text-red-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>` },
-          { label: 'Total Spent', value: `$${totalSpent.toFixed(2)}`, icon: 'bg-emerald-500/10 text-emerald-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
-          { label: 'Avg Order Value', value: `$${avgOrder.toFixed(2)}`, icon: 'bg-violet-500/10 text-violet-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>` },
-          { label: 'Paid Orders', value: paidCount, icon: 'bg-amber-500/10 text-amber-400', svg: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>` },
+          { label: 'Total Orders', value: customerOrders.length, icon: 'bg-red-500/10 text-red-400', svg: `<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>` },
+          { label: 'Total Spent', value: `$${totalSpent.toFixed(2)}`, icon: 'bg-emerald-500/10 text-emerald-400', svg: `<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
+          { label: 'Avg Order', value: `$${avgOrder.toFixed(2)}`, icon: 'bg-violet-500/10 text-violet-400', svg: `<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>` },
+          { label: 'Paid Orders', value: paidCount, icon: 'bg-amber-500/10 text-amber-400', svg: `<svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>` },
         ].map(s => `
-          <div class="bg-gray-800 rounded-2xl border border-gray-700 p-5 flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl ${s.icon} flex items-center justify-center flex-shrink-0">${s.svg}</div>
-            <div>
-              <p class="text-xl font-bold text-white">${s.value}</p>
-              <p class="text-xs text-gray-500">${s.label}</p>
+          <div class="bg-gray-800 rounded-2xl border border-gray-700 p-3 sm:p-5 flex items-center gap-2 sm:gap-4 min-w-0">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${s.icon} flex items-center justify-center flex-shrink-0">${s.svg}</div>
+            <div class="min-w-0">
+              <p class="text-base sm:text-xl font-bold text-white leading-tight truncate">${s.value}</p>
+              <p class="text-xs text-gray-500 truncate">${s.label}</p>
             </div>
           </div>
         `).join('')}
@@ -157,7 +157,31 @@ export async function init({ id }) {
       </div>
       ${customerOrders.length === 0
         ? `<div class="p-12 text-center text-gray-500 text-sm">No orders yet.</div>`
-        : `<div class="overflow-x-auto">
+        : `<!-- Mobile cards -->
+          <div class="block md:hidden divide-y divide-gray-700/50">
+            ${customerOrders.map(o => `
+              <div class="px-4 py-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-gray-700/40 active:bg-gray-700/60 transition-colors" onclick="window.location.hash='#/orders/${o.id}'">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap mb-1">
+                    <span class="font-mono text-xs font-semibold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-md">#${o.id.slice(0, 8).toUpperCase()}</span>
+                    ${statusBadge(o.status)}
+                  </div>
+                  <p class="text-xs text-gray-400">
+                    ${o.items.length} item${o.items.length !== 1 ? 's' : ''}
+                    <span class="mx-1 text-gray-600">·</span>
+                    <span class="font-semibold text-white">$${(o.totalAmount || 0).toFixed(2)}</span>
+                    <span class="mx-1 text-gray-600">·</span>
+                    ${formatDate(o.createdAt)}
+                  </p>
+                </div>
+                <svg class="w-4 h-4 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            `).join('')}
+          </div>
+          <!-- Desktop table -->
+          <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
               <thead class="bg-gray-800/50 border-b border-gray-700">
                 <tr>
@@ -175,9 +199,7 @@ export async function init({ id }) {
                     <td class="py-3.5 px-5">
                       <span class="font-mono text-xs font-semibold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-lg">#${o.id.slice(0, 8).toUpperCase()}</span>
                     </td>
-                    <td class="py-3.5 px-4 text-gray-400 text-xs">
-                      ${o.items.length} item${o.items.length !== 1 ? 's' : ''}
-                    </td>
+                    <td class="py-3.5 px-4 text-gray-400 text-xs">${o.items.length} item${o.items.length !== 1 ? 's' : ''}</td>
                     <td class="py-3.5 px-4 font-bold text-white">$${(o.totalAmount || 0).toFixed(2)}</td>
                     <td class="py-3.5 px-4">${statusBadge(o.status)}</td>
                     <td class="py-3.5 px-4 text-gray-500 text-xs">${formatDate(o.createdAt)}</td>

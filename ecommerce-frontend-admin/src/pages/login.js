@@ -147,18 +147,6 @@ export const template = `
 
         </form>
 
-        <!-- Demo credentials hint -->
-        <div class="mt-6 p-3.5 bg-gray-50 rounded-lg border border-gray-100">
-          <p class="text-xs text-gray-500 font-medium mb-1.5">Demo credentials</p>
-          <button
-            id="fill-demo"
-            class="text-xs text-red-500 hover:text-red-600 font-mono transition-colors hover:underline"
-          >
-            admin@shopapp.com &nbsp;/&nbsp; admin123
-          </button>
-          <p class="text-xs text-gray-400 mt-1">Click to auto-fill</p>
-        </div>
-
       </div>
     </div>
   </div>
@@ -176,7 +164,6 @@ export function init() {
   const loginBtn = document.getElementById('login-btn');
   const loginSpinner = document.getElementById('login-spinner');
   const loginBtnText = document.getElementById('login-btn-text');
-  const fillDemo = document.getElementById('fill-demo');
 
   // Clear inline errors on input
   emailInput.addEventListener('input', () => {
@@ -194,16 +181,6 @@ export function init() {
     passwordInput.type = isPassword ? 'text' : 'password';
     eyeIcon.classList.toggle('hidden', isPassword);
     eyeOffIcon.classList.toggle('hidden', !isPassword);
-  });
-
-  // Auto-fill demo credentials
-  fillDemo.addEventListener('click', () => {
-    emailInput.value = 'admin@shopapp.com';
-    passwordInput.value = 'admin123';
-    emailError.classList.add('hidden');
-    passwordError.classList.add('hidden');
-    emailInput.classList.remove('border-red-400');
-    passwordInput.classList.remove('border-red-400');
   });
 
   function showFieldError(input, errorEl, message) {

@@ -189,168 +189,188 @@ export const mockUsers = [
 
 export const mockOrders = [
   {
-    id: 'o1',
-    userId: 'u1',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567801',
+    userUid: 'u1',
+    status: 'PAID',
+    totalAmount: 129.97,
+    createdAt: '2025-10-15T10:30:00Z',
     items: [
-      { productId: '1', name: 'Wireless Bluetooth Headphones', price: 79.99, qty: 1 },
-      { productId: '8', name: 'JavaScript: The Good Parts', price: 24.99, qty: 2 }
+      { uid: 'i01a', productUid: '1', quantity: 1, priceSnapshot: 79.99 },
+      { uid: 'i01b', productUid: '8', quantity: 2, priceSnapshot: 24.99 },
     ],
-    total: 129.97,
-    status: 'Delivered',
-    date: '2025-10-15'
   },
   {
-    id: 'o2',
-    userId: 'u1',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567802',
+    userUid: 'u1',
+    status: 'PAID',
+    totalAmount: 129.99,
+    createdAt: '2025-11-20T14:15:00Z',
     items: [
-      { productId: '4', name: 'Mechanical Keyboard', price: 129.99, qty: 1 }
+      { uid: 'i02a', productUid: '4', quantity: 1, priceSnapshot: 129.99 },
     ],
-    total: 129.99,
-    status: 'Delivered',
-    date: '2025-11-20'
   },
   {
-    id: 'o3',
-    userId: 'u2',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567803',
+    userUid: 'u2',
+    status: 'PAID',
+    totalAmount: 87.96,
+    createdAt: '2025-11-28T09:00:00Z',
     items: [
-      { productId: '5', name: 'Classic Cotton T-Shirt', price: 19.99, qty: 3 },
-      { productId: '11', name: 'Ceramic Coffee Mug Set', price: 27.99, qty: 1 }
+      { uid: 'i03a', productUid: '5', quantity: 3, priceSnapshot: 19.99 },
+      { uid: 'i03b', productUid: '11', quantity: 1, priceSnapshot: 27.99 },
     ],
-    total: 87.96,
-    status: 'Delivered',
-    date: '2025-11-28'
   },
   {
-    id: 'o4',
-    userId: 'u3',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567804',
+    userUid: 'u3',
+    status: 'PAID',
+    totalAmount: 79.98,
+    createdAt: '2025-12-05T16:45:00Z',
     items: [
-      { productId: '3', name: 'USB-C Hub 7-in-1', price: 49.99, qty: 1 },
-      { productId: '9', name: 'Clean Code', price: 29.99, qty: 1 }
+      { uid: 'i04a', productUid: '3', quantity: 1, priceSnapshot: 49.99 },
+      { uid: 'i04b', productUid: '9', quantity: 1, priceSnapshot: 29.99 },
     ],
-    total: 79.98,
-    status: 'Delivered',
-    date: '2025-12-05'
   },
   {
-    id: 'o5',
-    userId: 'u4',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567805',
+    userUid: 'u4',
+    status: 'PAID',
+    totalAmount: 149.97,
+    createdAt: '2025-12-18T11:20:00Z',
     items: [
-      { productId: '7', name: 'Hooded Zip-Up Sweatshirt', price: 54.99, qty: 2 },
-      { productId: '12', name: 'Bamboo Desk Organizer', price: 39.99, qty: 1 }
+      { uid: 'i05a', productUid: '7', quantity: 2, priceSnapshot: 54.99 },
+      { uid: 'i05b', productUid: '12', quantity: 1, priceSnapshot: 39.99 },
     ],
-    total: 149.97,
-    status: 'Delivered',
-    date: '2025-12-18'
   },
   {
-    id: 'o6',
-    userId: 'u2',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567806',
+    userUid: 'u2',
+    status: 'PAID',
+    totalAmount: 209.98,
+    createdAt: '2026-01-08T08:30:00Z',
     items: [
-      { productId: '1', name: 'Wireless Bluetooth Headphones', price: 79.99, qty: 1 },
-      { productId: '4', name: 'Mechanical Keyboard', price: 129.99, qty: 1 }
+      { uid: 'i06a', productUid: '1', quantity: 1, priceSnapshot: 79.99 },
+      { uid: 'i06b', productUid: '4', quantity: 1, priceSnapshot: 129.99 },
     ],
-    total: 209.98,
-    status: 'Delivered',
-    date: '2026-01-08'
   },
   {
-    id: 'o7',
-    userId: 'u5',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567807',
+    userUid: 'u5',
+    status: 'PAID',
+    totalAmount: 57.98,
+    createdAt: '2026-01-15T13:00:00Z',
     items: [
-      { productId: '10', name: 'The Pragmatic Programmer', price: 32.99, qty: 1 },
-      { productId: '8', name: 'JavaScript: The Good Parts', price: 24.99, qty: 1 }
+      { uid: 'i07a', productUid: '10', quantity: 1, priceSnapshot: 32.99 },
+      { uid: 'i07b', productUid: '8', quantity: 1, priceSnapshot: 24.99 },
     ],
-    total: 57.98,
-    status: 'Delivered',
-    date: '2026-01-15'
   },
   {
-    id: 'o8',
-    userId: 'u6',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567808',
+    userUid: 'u6',
+    status: 'PAID',
+    totalAmount: 124.97,
+    createdAt: '2026-01-22T17:10:00Z',
     items: [
-      { productId: '2', name: 'Smartphone Stand & Charger', price: 34.99, qty: 1 },
-      { productId: '6', name: 'Slim Fit Chino Pants', price: 44.99, qty: 2 }
+      { uid: 'i08a', productUid: '2', quantity: 1, priceSnapshot: 34.99 },
+      { uid: 'i08b', productUid: '6', quantity: 2, priceSnapshot: 44.99 },
     ],
-    total: 124.97,
-    status: 'Delivered',
-    date: '2026-01-22'
   },
   {
-    id: 'o9',
-    userId: 'u3',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567809',
+    userUid: 'u3',
+    status: 'PAID',
+    totalAmount: 95.97,
+    createdAt: '2026-02-10T10:05:00Z',
     items: [
-      { productId: '11', name: 'Ceramic Coffee Mug Set', price: 27.99, qty: 2 },
-      { productId: '12', name: 'Bamboo Desk Organizer', price: 39.99, qty: 1 }
+      { uid: 'i09a', productUid: '11', quantity: 2, priceSnapshot: 27.99 },
+      { uid: 'i09b', productUid: '12', quantity: 1, priceSnapshot: 39.99 },
     ],
-    total: 95.97,
-    status: 'Shipped',
-    date: '2026-02-10'
   },
   {
-    id: 'o10',
-    userId: 'u7',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567810',
+    userUid: 'u7',
+    status: 'PAID',
+    totalAmount: 179.98,
+    createdAt: '2026-02-14T12:30:00Z',
     items: [
-      { productId: '4', name: 'Mechanical Keyboard', price: 129.99, qty: 1 },
-      { productId: '3', name: 'USB-C Hub 7-in-1', price: 49.99, qty: 1 }
+      { uid: 'i10a', productUid: '4', quantity: 1, priceSnapshot: 129.99 },
+      { uid: 'i10b', productUid: '3', quantity: 1, priceSnapshot: 49.99 },
     ],
-    total: 179.98,
-    status: 'Delivered',
-    date: '2026-02-14'
   },
   {
-    id: 'o11',
-    userId: 'u1',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567811',
+    userUid: 'u1',
+    status: 'PAID',
+    totalAmount: 94.97,
+    createdAt: '2026-02-20T15:45:00Z',
     items: [
-      { productId: '5', name: 'Classic Cotton T-Shirt', price: 19.99, qty: 2 },
-      { productId: '7', name: 'Hooded Zip-Up Sweatshirt', price: 54.99, qty: 1 }
+      { uid: 'i11a', productUid: '5', quantity: 2, priceSnapshot: 19.99 },
+      { uid: 'i11b', productUid: '7', quantity: 1, priceSnapshot: 54.99 },
     ],
-    total: 94.97,
-    status: 'Delivered',
-    date: '2026-02-20'
   },
   {
-    id: 'o12',
-    userId: 'u4',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567812',
+    userUid: 'u4',
+    status: 'PAID',
+    totalAmount: 62.98,
+    createdAt: '2026-03-05T09:20:00Z',
     items: [
-      { productId: '9', name: 'Clean Code', price: 29.99, qty: 1 },
-      { productId: '10', name: 'The Pragmatic Programmer', price: 32.99, qty: 1 }
+      { uid: 'i12a', productUid: '9', quantity: 1, priceSnapshot: 29.99 },
+      { uid: 'i12b', productUid: '10', quantity: 1, priceSnapshot: 32.99 },
     ],
-    total: 62.98,
-    status: 'Shipped',
-    date: '2026-03-05'
   },
   {
-    id: 'o13',
-    userId: 'u5',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567813',
+    userUid: 'u5',
+    status: 'PENDING',
+    totalAmount: 79.99,
+    createdAt: '2026-03-12T11:00:00Z',
     items: [
-      { productId: '1', name: 'Wireless Bluetooth Headphones', price: 79.99, qty: 1 }
+      { uid: 'i13a', productUid: '1', quantity: 1, priceSnapshot: 79.99 },
     ],
-    total: 79.99,
-    status: 'Processing',
-    date: '2026-03-12'
   },
   {
-    id: 'o14',
-    userId: 'u6',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567814',
+    userUid: 'u6',
+    status: 'PENDING',
+    totalAmount: 107.97,
+    createdAt: '2026-03-18T14:30:00Z',
     items: [
-      { productId: '12', name: 'Bamboo Desk Organizer', price: 39.99, qty: 2 },
-      { productId: '11', name: 'Ceramic Coffee Mug Set', price: 27.99, qty: 1 }
+      { uid: 'i14a', productUid: '12', quantity: 2, priceSnapshot: 39.99 },
+      { uid: 'i14b', productUid: '11', quantity: 1, priceSnapshot: 27.99 },
     ],
-    total: 107.97,
-    status: 'Processing',
-    date: '2026-03-18'
   },
   {
-    id: 'o15',
-    userId: 'u2',
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567815',
+    userUid: 'u2',
+    status: 'PENDING',
+    totalAmount: 104.96,
+    createdAt: '2026-03-22T08:45:00Z',
     items: [
-      { productId: '6', name: 'Slim Fit Chino Pants', price: 44.99, qty: 1 },
-      { productId: '5', name: 'Classic Cotton T-Shirt', price: 19.99, qty: 3 }
+      { uid: 'i15a', productUid: '6', quantity: 1, priceSnapshot: 44.99 },
+      { uid: 'i15b', productUid: '5', quantity: 3, priceSnapshot: 19.99 },
     ],
-    total: 104.96,
-    status: 'Processing',
-    date: '2026-03-22'
-  }
+  },
+  {
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567816',
+    userUid: 'u7',
+    status: 'CANCELLED',
+    totalAmount: 54.99,
+    createdAt: '2026-04-01T10:00:00Z',
+    items: [
+      { uid: 'i16a', productUid: '7', quantity: 1, priceSnapshot: 54.99 },
+    ],
+  },
+  {
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567817',
+    userUid: 'u3',
+    status: 'CANCELLED',
+    totalAmount: 49.99,
+    createdAt: '2026-04-10T16:00:00Z',
+    items: [
+      { uid: 'i17a', productUid: '3', quantity: 1, priceSnapshot: 49.99 },
+    ],
+  },
 ];
 
 export const mockAdminUsers = [

@@ -92,6 +92,15 @@ async function handleRoute() {
   }
 
   renderSidebar();
+
+  const isPublic = PUBLIC_ROUTES.includes(basePath);
+  const mobileHeader = document.getElementById('mobile-header');
+  const mainContent = document.getElementById('main-content');
+  if (mobileHeader) mobileHeader.classList.toggle('hidden', isPublic);
+  if (mainContent) {
+    mainContent.classList.toggle('pt-14', !isPublic);
+  }
+
   window.scrollTo(0, 0);
 }
 
