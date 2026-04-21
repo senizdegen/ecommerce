@@ -35,6 +35,14 @@ async def get_my_orders(
     return await order_service.get_orders_by_user(user_uid, session)
 
 
+@order_router.get("/admin/all", response_model=List[OrderWithItemsResponse])
+async def get_all_orders_admin(
+    token_details: dict = Depends(access_token_bearer),
+    session: AsyncSession = Depends(get_session)
+):
+    return await order_service.get_all_orders(session)
+
+
 @order_router.get("/{order_uid}", response_model=OrderWithItemsResponse)
 async def get_order(
     order_uid: str,

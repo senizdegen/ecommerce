@@ -120,6 +120,20 @@ class OrderService:
                 )
             raise
 
+    async def get_all_orders(self, session: AsyncSession):
+        statement = select(Order).order_by(desc(Order.created_at))
+        result = await session.execute(statement)
+        orders = result.scalars().all()
+
+        result_list = []
+        for order in orders:
+            items_stmt = select(OrderItem).where(OrderItem.order_uid == order.uid)
+            items_result = await session.execute(items_stmt)
+            items = items_result.scalars().all()
+            result_list.append({"order": order, "items": items})
+
+        return result_list
+
     async def cancel_order(self, order_uid: str, user_uid: str, session: AsyncSession):
         order_data = await self.get_order_by_uid(order_uid, user_uid, session)
 
