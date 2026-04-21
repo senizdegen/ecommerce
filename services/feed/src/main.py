@@ -39,6 +39,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(feed_router, prefix="/api/{version}/feed", tags=["feed"])
+app.include_router(feed_router, prefix=f"/api/{version}/feed", tags=["feed"])
 
 

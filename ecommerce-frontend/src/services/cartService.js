@@ -17,7 +17,7 @@ function normalizeApiItem(item, product = null) {
       ? (typeof product.price === 'string' ? parseFloat(product.price) : product.price)
       : 0,
     qty: item.quantity,
-    image: product?.image || null,
+    image: product?.image_url ?? product?.image ?? null,
   };
 }
 

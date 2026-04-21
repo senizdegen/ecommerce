@@ -43,7 +43,7 @@ function mockChangePassword(id, oldPass, newPass) {
 // ── Real API implementations ─────────────────────────────────────────────────
 
 async function apiGetUserById(uid) {
-  const res = await fetch(`${config.BASE_URL}/users/${uid}`, {
+  const res = await fetch(`${config.API.user}/users/${uid}`, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${getAccessToken()}`,

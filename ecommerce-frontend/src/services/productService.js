@@ -13,7 +13,7 @@ function normalize(p) {
     stock: availableQuantity,
     inStock: availableQuantity > 0,
     categoryName: null,
-    image: null,
+    image: p.image_url || null,
     createdAt: p.created_at,
     updatedAt: p.updated_at,
   };
