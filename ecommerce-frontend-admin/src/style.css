@@ -1,3 +1,213 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Light mode overrides (html without .dark class) ── */
+
+html:not(.dark) body {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+/* Main content area backgrounds */
+html:not(.dark) #main-content,
+html:not(.dark) #app {
+  background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) #main-content .bg-gray-900,
+html:not(.dark) #modal-container .bg-gray-900 {
+  background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) #main-content .bg-gray-800,
+html:not(.dark) #modal-container .bg-gray-800 {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark) #main-content .bg-gray-700,
+html:not(.dark) #modal-container .bg-gray-700 {
+  background-color: #f8fafc !important;
+}
+
+/* Borders */
+html:not(.dark) #main-content .border-gray-700,
+html:not(.dark) #modal-container .border-gray-700 {
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #main-content .border-gray-600,
+html:not(.dark) #modal-container .border-gray-600 {
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) #main-content .divide-gray-700 > * + * {
+  border-color: #e2e8f0 !important;
+}
+
+/* Text colors */
+html:not(.dark) #main-content .text-white,
+html:not(.dark) #modal-container .text-white {
+  color: #1e293b !important;
+}
+
+html:not(.dark) #main-content .text-gray-400,
+html:not(.dark) #modal-container .text-gray-400 {
+  color: #64748b !important;
+}
+
+html:not(.dark) #main-content .text-gray-300,
+html:not(.dark) #modal-container .text-gray-300 {
+  color: #475569 !important;
+}
+
+html:not(.dark) #main-content .text-gray-500,
+html:not(.dark) #modal-container .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+/* Restore white text on colored backgrounds (buttons, badges) */
+html:not(.dark) #main-content [class*="bg-red-"] .text-white,
+html:not(.dark) #main-content [class*="bg-red-"],
+html:not(.dark) #modal-container [class*="bg-red-"] {
+  color: inherit;
+}
+
+html:not(.dark) #main-content .bg-red-500,
+html:not(.dark) #modal-container .bg-red-500 {
+  color: #ffffff !important;
+}
+
+html:not(.dark) #main-content .bg-emerald-500,
+html:not(.dark) #modal-container .bg-emerald-500,
+html:not(.dark) #main-content .bg-amber-500,
+html:not(.dark) #modal-container .bg-amber-500,
+html:not(.dark) #main-content .bg-violet-500,
+html:not(.dark) #modal-container .bg-violet-500,
+html:not(.dark) #main-content .bg-blue-500,
+html:not(.dark) #modal-container .bg-blue-500 {
+  color: #ffffff !important;
+}
+
+/* Inputs and selects */
+html:not(.dark) #main-content input,
+html:not(.dark) #main-content select,
+html:not(.dark) #main-content textarea,
+html:not(.dark) #modal-container input,
+html:not(.dark) #modal-container select,
+html:not(.dark) #modal-container textarea {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+html:not(.dark) #main-content input::placeholder,
+html:not(.dark) #main-content textarea::placeholder,
+html:not(.dark) #modal-container input::placeholder,
+html:not(.dark) #modal-container textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Hover states */
+html:not(.dark) #main-content .hover\:bg-gray-700:hover,
+html:not(.dark) #modal-container .hover\:bg-gray-700:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) #main-content .hover\:bg-gray-800:hover,
+html:not(.dark) #modal-container .hover\:bg-gray-800:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Ring/outline colors */
+html:not(.dark) #main-content .ring-gray-700,
+html:not(.dark) #modal-container .ring-gray-700 {
+  --tw-ring-color: #e2e8f0 !important;
+}
+
+/* Chart.js canvas — no override needed, JS controls colors */
+
+/* ── Sidebar light mode ── */
+
+html:not(.dark) #sidebar {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #sidebar .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #sidebar .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark) #sidebar .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) #sidebar .text-white {
+  color: #1e293b !important;
+}
+
+html:not(.dark) #sidebar .text-gray-400 {
+  color: #64748b !important;
+}
+
+html:not(.dark) #sidebar .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+html:not(.dark) #sidebar .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+html:not(.dark) #sidebar .hover\:bg-slate-800:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) #sidebar .hover\:text-white:hover {
+  color: #1e293b !important;
+}
+
+/* Keep active nav item red with white text */
+html:not(.dark) #sidebar .bg-red-500 {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) #sidebar .bg-red-500 .text-white,
+html:not(.dark) #sidebar .bg-red-500 span {
+  color: #ffffff !important;
+}
+
+/* ── Mobile header light mode ── */
+
+html:not(.dark) #mobile-header {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #mobile-header .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark) #mobile-header .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #mobile-header .text-gray-400 {
+  color: #64748b !important;
+}
+
+html:not(.dark) #mobile-header .text-white {
+  color: #1e293b !important;
+}
+
+html:not(.dark) #mobile-header .hover\:text-white:hover {
+  color: #1e293b !important;
+}
+
+html:not(.dark) #mobile-header .hover\:bg-slate-800:hover {
+  background-color: #f1f5f9 !important;
+}

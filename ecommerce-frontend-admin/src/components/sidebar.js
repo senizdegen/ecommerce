@@ -2,6 +2,7 @@ import { getUser, isLoggedIn, isAdmin } from '../core/auth.js';
 import { logout } from '../services/authService.js';
 import { navigate } from '../core/router.js';
 import { eventBus } from '../core/eventBus.js';
+import { toggleTheme, isDark } from '../core/theme.js';
 
 function getSidebarHTML() {
   const loggedIn = isLoggedIn() && isAdmin();
@@ -85,6 +86,13 @@ function getSidebarHTML() {
             <p class="text-sm font-semibold text-white truncate">${displayName}</p>
             <p class="text-xs text-gray-500 truncate">${user?.email || ''}</p>
           </div>
+          <button id="theme-toggle" title="Toggle theme"
+            class="text-gray-500 hover:text-yellow-400 transition-colors flex-shrink-0 p-1 rounded-md hover:bg-slate-800">
+            ${isDark()
+              ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>`
+              : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>`
+            }
+          </button>
           <button id="sidebar-logout" title="Logout"
             class="text-gray-500 hover:text-red-400 transition-colors flex-shrink-0 p-1 rounded-md hover:bg-slate-800">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,6 +156,14 @@ export function renderSidebar() {
   if (!container) return;
 
   container.innerHTML = getSidebarHTML();
+
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      toggleTheme();
+      renderSidebar();
+    });
+  }
 
   const logoutBtn = document.getElementById('sidebar-logout');
   if (logoutBtn) {
