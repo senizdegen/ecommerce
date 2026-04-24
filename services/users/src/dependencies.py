@@ -36,6 +36,7 @@ class AccessTokenBearer(TokenBearer):
                 detail="Access token required"
             )
 
+
 class RefreshTokenBearer(TokenBearer):
     def verify_token_data(self, token_data: dict):
         if token_data.get("refresh") is not True:
@@ -43,11 +44,21 @@ class RefreshTokenBearer(TokenBearer):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Refresh token required"
             )
-        
-async def get_current_user(
-        token_details: dict = Depends(AccessTokenBearer())
-):
-    return token_details
+
+
+class AdminBearer(TokenBearer):  # добавить
+    def verify_token_data(self, token_data: dict):
+        if token_data.get("refresh") is True:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Access token required"
+            )
+        if not token_data.get("user", {}).get("is_admin", False):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin access required"
+            )
+
 
 def decode_token(token: str) -> dict:
     try:
@@ -60,3 +71,7 @@ def decode_token(token: str) -> dict:
     except jwt.PyJWTError as e:
         logging.exception(e)
         return None
+
+
+async def get_current_user(token_details: dict = Depends(AccessTokenBearer())):
+    return token_details

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 import uuid
 from datetime import datetime
+from typing import Optional
 
 
 class AuthUserModel(BaseModel):
@@ -8,6 +9,7 @@ class AuthUserModel(BaseModel):
     email: str
     password_hash: str = Field(exclude=True)
     is_verified: bool
+    is_admin: bool
     created_at: datetime
     updated_at: datetime
 
@@ -22,3 +24,8 @@ class UserCreateModel(BaseModel):
 class UserLoginModel(BaseModel):
     email: str = Field(max_length=40)
     password: str = Field(min_length=6)
+
+
+class UserUpdateModel(BaseModel):  # добавить
+    email: Optional[str] = Field(default=None, max_length=40)
+    password: Optional[str] = Field(default=None, min_length=6)

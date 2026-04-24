@@ -13,5 +13,6 @@ class AuthUser(SQLModel, table=True):
     email: str = Field(index=True, nullable=False, unique=True)
     password_hash: str = Field(exclude=True)
     is_verified: bool = Field(default=False)
+    is_admin: bool = Field(default=False)  # добавить
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))

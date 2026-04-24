@@ -34,6 +34,7 @@ class ProductConsumer:
 
         await self.queue.bind(self.exchange, routing_key="product.created")
         await self.queue.bind(self.exchange, routing_key="product.updated")
+        await self.queue.bind(self.exchange, routing_key="product.deleted")  # добавить
 
     async def consume(self):
         await self.queue.consume(self.process_message)
@@ -48,12 +49,12 @@ class ProductConsumer:
             routing_key = message.routing_key
 
             async with AsyncSessionLocal() as session:
-
                 if routing_key == "product.created":
                     await self.handle_created(data, session)
-
                 elif routing_key == "product.updated":
                     await self.handle_updated(data, session)
+                elif routing_key == "product.deleted":  # добавить
+                    await self.handle_deleted(data, session)
 
     async def handle_created(self, data, session):
         product_dict = {
@@ -62,15 +63,10 @@ class ProductConsumer:
             "description": data["description"],
             "price": data["price"],
             "available_quantity": data["available_quantity"],
-            "image_url": data.get("image_url"),  # может быть None если фото нет
+            "image_url": data.get("image_url"),
         }
-
         new_product = ProductCreateModel(**product_dict)
-
-        await self.feed_service.create_product(
-            session=session,
-            product_data=new_product
-        )
+        await self.feed_service.create_product(session=session, product_data=new_product)
         return new_product
 
     async def handle_updated(self, data, session):
@@ -78,13 +74,17 @@ class ProductConsumer:
             name=data.get("name"),
             description=data.get("description"),
             price=data.get("price"),
-            image_url=data.get("image_url"),  # может быть None если фото не менялось
+            image_url=data.get("image_url"),
         )
-
         updated_product = await self.feed_service.update_product(
             session=session,
             product_uid=data["product_uid"],
             product_data=update_data
         )
-
         return updated_product
+
+    async def handle_deleted(self, data, session):  # добавить
+        await self.feed_service.delete_product(
+            session=session,
+            product_uid=data["product_uid"]
+        )

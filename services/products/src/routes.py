@@ -4,7 +4,7 @@ from .service import ProductService
 from typing import List, Optional
 from .schemas import ProductModel
 from .database import get_session
-from .dependencies import AccessTokenBearer
+from .dependencies import AccessTokenBearer, AdminBearer
 from .minio_client import upload_image, ensure_bucket_exists
 from decimal import Decimal
 import uuid
@@ -12,11 +12,13 @@ import uuid
 product_router = APIRouter()
 product_service = ProductService()
 access_token_bearer = AccessTokenBearer()
+admin_bearer = AdminBearer()
 
 
 @product_router.get('/', response_model=List[ProductModel])
 async def get_all_products(
     session: AsyncSession = Depends(get_session)
+    # публичный — токен не нужен
 ):
     return await product_service.get_all_products(session)
 
@@ -25,6 +27,7 @@ async def get_all_products(
 async def get_product(
     product_uid: str,
     session: AsyncSession = Depends(get_session)
+    # публичный — токен не нужен
 ):
     product = await product_service.get_product(product_uid, session)
     if product:
@@ -41,7 +44,7 @@ async def create_product(
     available_quantity: int = Form(...),
     image: Optional[UploadFile] = File(None),
     session: AsyncSession = Depends(get_session),
-    token_details: dict = Depends(access_token_bearer)
+    token_details: dict = Depends(admin_bearer)  # только админ
 ):
     image_url = None
 
@@ -56,7 +59,7 @@ async def create_product(
     product_data = ProductCreateModel(
         name=name,
         description=description,
-        price=Decimal(price),
+        price=Decimal(str(price).replace(',', '.')),
         available_quantity=available_quantity,
     )
 
@@ -89,7 +92,7 @@ async def update_product(
     price: str = Form(...),
     image: Optional[UploadFile] = File(None),
     session: AsyncSession = Depends(get_session),
-    token_details: dict = Depends(access_token_bearer)
+    token_details: dict = Depends(admin_bearer)  # только админ
 ):
     image_url = None
 
@@ -104,7 +107,7 @@ async def update_product(
     product_data = ProductUpdateModel(
         name=name,
         description=description,
-        price=Decimal(price),
+        price=Decimal(str(price).replace(',', '.')),
     )
 
     updated_product = await product_service.update_product(product_uid, product_data, image_url, session)
@@ -126,10 +129,16 @@ async def update_product(
 @product_router.delete('/{product_uid}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_product(
     product_uid: str,
+    request: Request,
     session: AsyncSession = Depends(get_session),
-    token_details: dict = Depends(access_token_bearer)
+    token_details: dict = Depends(admin_bearer)  # только админ
 ):
     response = await product_service.delete_product(product_uid, session)
-    if response is not None:
-        return {}
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product with provided uid not found")
+    if response is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product with provided uid not found")
+
+    await request.app.state.rabbit.publish_product_deleted({
+        "product_uid": product_uid
+    })
+
+    return {}

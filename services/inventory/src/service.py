@@ -15,13 +15,11 @@ class InventoryService:
 
     async def get_inventory(self, session: AsyncSession, product_uid):
         inventory = await self.find_inventory(session, product_uid)
-
         if inventory is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Inventory with provided product uid was not found"
             )
-
         return inventory
 
     async def create_inventory(self, session: AsyncSession, data):
@@ -35,6 +33,14 @@ class InventoryService:
         await session.refresh(inventory)
         return inventory
 
+    async def delete_inventory(self, session: AsyncSession, product_uid):  # добавить
+        inventory = await self.find_inventory(session, product_uid)
+        if inventory is None:
+            return None
+        await session.delete(inventory)
+        await session.commit()
+        return {}
+
     async def reserve(self, session: AsyncSession, product_uid, qty):
         result = await session.execute(
             select(Inventory)
@@ -42,31 +48,25 @@ class InventoryService:
             .with_for_update()
         )
         inventory = result.scalar_one_or_none()
-
         if inventory is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Inventory with provided product uid was not found"
             )
-
         if inventory.available_quantity < qty:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Not enough stock"
             )
-
         inventory.available_quantity -= qty
         inventory.reserved_quantity += qty
-
         await session.commit()
         await session.refresh(inventory)
         return inventory
 
     async def add_stock(self, session: AsyncSession, product_uid, qty):
         inventory = await self.get_inventory(session, product_uid)
-
         inventory.available_quantity += qty
-
         await session.commit()
         await session.refresh(inventory)
         return inventory
@@ -78,22 +78,18 @@ class InventoryService:
             .with_for_update()
         )
         inventory = result.scalar_one_or_none()
-
         if inventory is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Inventory with provided product uid was not found"
             )
-
         if inventory.reserved_quantity < qty:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Not enough reserved stock"
             )
-
         inventory.available_quantity += qty
         inventory.reserved_quantity -= qty
-
         await session.commit()
         await session.refresh(inventory)
         return inventory
@@ -105,21 +101,17 @@ class InventoryService:
             .with_for_update()
         )
         inventory = result.scalar_one_or_none()
-
         if inventory is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Inventory with provided product uid was not found"
             )
-
         if inventory.reserved_quantity < qty:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Not enough reserved stock"
             )
-
         inventory.reserved_quantity -= qty
-
         await session.commit()
         await session.refresh(inventory)
         return inventory

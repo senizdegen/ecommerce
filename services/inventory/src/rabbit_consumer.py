@@ -33,8 +33,8 @@ class ProductCreatedConsumer:
         )
 
         await self.queue.bind(self.exchange, routing_key="product.created")
+        await self.queue.bind(self.exchange, routing_key="product.deleted")  # добавить
 
-    
     async def consume(self):
         await self.queue.consume(self.process_message)
 
@@ -45,12 +45,21 @@ class ProductCreatedConsumer:
     async def process_message(self, message: AbstractIncomingMessage):
         async with message.process():
             data = json.loads(message.body.decode())
-
-            inventory_dict = {
-                "product_uid": data["product_uid"],
-                "available_quantity": data["available_quantity"]
-            }
+            routing_key = message.routing_key
 
             async with AsyncSessionLocal() as session:
-                new_inventory = InventoryCreate(**inventory_dict)
-                await self.inventory_service.create_inventory(session=session, data=new_inventory)
+                if routing_key == "product.created":
+                    await self.handle_created(data, session)
+                elif routing_key == "product.deleted":
+                    await self.handle_deleted(data, session)
+
+    async def handle_created(self, data, session):
+        inventory_dict = {
+            "product_uid": data["product_uid"],
+            "available_quantity": data["available_quantity"]
+        }
+        new_inventory = InventoryCreate(**inventory_dict)
+        await self.inventory_service.create_inventory(session=session, data=new_inventory)
+
+    async def handle_deleted(self, data, session):
+        await self.inventory_service.delete_inventory(session=session, product_uid=data["product_uid"])
