@@ -117,20 +117,6 @@ export const template = `
       </div>
     </section>
 
-    <!-- Best Sellers -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-gray-100">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="w-4 h-9 bg-red-500 rounded-sm inline-block"></span>
-        <span class="text-red-500 font-semibold text-sm tracking-wide">This Month</span>
-      </div>
-      <div class="flex items-center justify-between mb-8">
-        <h2 class="text-2xl font-bold text-gray-900">Best Sellers</h2>
-      </div>
-      <div id="best-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-5">
-        ${[...Array(4)].map(() => `<div class="rounded-xl bg-gray-100 animate-pulse" style="height:280px;"></div>`).join('')}
-      </div>
-    </section>
-
     <!-- Explore Products -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-gray-100">
       <div class="flex items-center gap-3 mb-4">
