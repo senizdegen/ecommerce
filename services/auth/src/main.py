@@ -30,10 +30,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://ecommerce-admin-rho-ochre.vercel.app/"
-        "https://ecommerce-client-eta-weld.vercel.app/"
-    ],
+    allow_origins=["*"],  # временно разреши все домены
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
