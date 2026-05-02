@@ -21,7 +21,7 @@ let mockStore = [...mockProducts];
 
 export async function getAll() {
   if (config.MOCK.products) return [...mockStore];
-  const data = await apiGet(config.API.feed, '/products/');
+  const data = await apiGet(config.API.feed, '/products');
   return data.map(normalize);
 }
 
