@@ -1,10 +1,29 @@
-export function showProductFormModal({ product = null, onSave }) {
+import { getCategories } from '../services/productService.js';
+
+export async function showProductFormModal({ product = null, onSave }) {
   const isEdit = product !== null;
   const container = document.getElementById('modal-container');
   if (!container) return;
 
+  // Грузим категории перед рендером
+  let categories = [];
+  try {
+    categories = await getCategories();
+  } catch {
+    categories = [];
+  }
+
   const inputCls = 'w-full border border-gray-600 rounded-xl px-3 py-2.5 text-sm bg-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all';
   const labelCls = 'block text-sm font-medium text-gray-300 mb-1.5';
+
+  const categoryOptions = categories.length > 0
+    ? `<option value="">No category</option>` +
+      categories.map(cat => `
+        <option value="${cat.uid || ''}" ${product?.categoryUid && String(product.categoryUid) === String(cat.uid) ? 'selected' : ''}>
+          ${cat.name}
+        </option>
+      `).join('')
+    : `<option value="">No categories available</option>`;
 
   container.innerHTML = `
     <div id="pf-overlay" class="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -42,6 +61,13 @@ export function showProductFormModal({ product = null, onSave }) {
                 <input type="number" id="pf-quantity" min="0"
                   class="${inputCls}" placeholder="0" />
               </div>` : ''}
+            </div>
+
+            <div>
+              <label class="${labelCls}">Category</label>
+              <select id="pf-category" class="${inputCls} cursor-pointer">
+                ${categoryOptions}
+              </select>
             </div>
 
             <div>
@@ -87,9 +113,7 @@ export function showProductFormModal({ product = null, onSave }) {
     </div>
   `;
 
-  const close = () => {
-    container.innerHTML = '';
-  };
+  const close = () => { container.innerHTML = ''; };
 
   document.getElementById('pf-close').addEventListener('click', close);
   document.getElementById('pf-cancel').addEventListener('click', close);
@@ -111,15 +135,23 @@ export function showProductFormModal({ product = null, onSave }) {
 
   document.getElementById('product-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const name = document.getElementById('pf-name').value.trim();
     const price = document.getElementById('pf-price').value;
     const description = document.getElementById('pf-description').value.trim();
     const imageFile = document.getElementById('pf-image').files[0] || null;
+    const categoryUid = document.getElementById('pf-category').value || null;
 
     if (!name) { alert('Product name is required'); return; }
     if (!price || isNaN(price)) { alert('Valid price is required'); return; }
 
-    const saveData = { name, price, description, image: imageFile };
+    const saveData = {
+      name,
+      price,
+      description,
+      image: imageFile,
+      category_uid: categoryUid,
+    };
 
     if (!isEdit) {
       const quantity = document.getElementById('pf-quantity').value;

@@ -1,6 +1,7 @@
 from .schemas import ProductCreateModel, ProductUpdateModel
 from sqlmodel import select, desc
-from .models import Product
+from sqlalchemy.orm import selectinload
+from .models import Product, Category
 from sqlmodel.ext.asyncio.session import AsyncSession
 import uuid
 from fastapi import HTTPException, status
@@ -10,7 +11,7 @@ from datetime import datetime
 
 class ProductService:
     async def get_all_products(self, session: AsyncSession):
-        statement = select(Product).order_by(desc(Product.created_at))
+        statement = select(Product).options(selectinload(Product.category)).order_by(desc(Product.created_at))
         result = await session.exec(statement)
         return result.all()
 
@@ -19,7 +20,7 @@ class ProductService:
             uid = uuid.UUID(product_uid)
         except ValueError:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid uid was provided")
-        statement = select(Product).where(Product.uid == uid)
+        statement = select(Product).options(selectinload(Product.category)).where(Product.uid == uid)
         result = await session.exec(statement)
         product = result.first()
         return product if product is not None else None
@@ -30,6 +31,8 @@ class ProductService:
         session.add(new_product)
         await session.commit()
         await session.refresh(new_product)
+        # подгружаем категорию
+        await session.refresh(new_product, attribute_names=["category"])
         return new_product
 
     async def update_product(self, product_uid: str, update_data: ProductUpdateModel, image_url: Optional[str], session: AsyncSession):
@@ -43,7 +46,7 @@ class ProductService:
             product_to_update.image_url = image_url
         product_to_update.updated_at = datetime.now()
         await session.commit()
-        await session.refresh(product_to_update)
+        await session.refresh(product_to_update, attribute_names=["category"])
         return product_to_update
 
     async def delete_product(self, product_uid: str, session: AsyncSession):
@@ -53,3 +56,8 @@ class ProductService:
             await session.commit()
             return {}
         return None
+    
+    async def get_categories(self, session: AsyncSession):
+        statement = select(Category).order_by(Category.name)
+        result = await session.exec(statement)
+        return result.all()

@@ -1,10 +1,21 @@
-import { getAll } from '../services/productService.js';
+import { getAll, getCategories } from '../services/productService.js';
 import { addToCart } from '../services/cartService.js';
 import { toggleWishlist } from '../services/wishlistService.js';
 import { productCard } from '../components/productCard.js';
 import { showToast } from '../components/toast.js';
 import { navigate } from '../core/router.js';
 import { isLoggedIn } from '../core/auth.js';
+
+// Иконки для категорий — если имя совпадает используем красивую иконку, иначе дефолтная
+const CATEGORY_ICONS = {
+  'Electronics': `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>`,
+  'Clothing': `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5l-2 5v1h2v11h14V9h2V8l-2-5h-4m-6 0l-1 4h8l-1-4M9 3h6"/></svg>`,
+  'Books': `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>`,
+  'Home': `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`,
+  'Gaming': `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>`,
+};
+
+const DEFAULT_ICON = `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`;
 
 export const template = `
   <div>
@@ -80,7 +91,7 @@ export const template = `
       </div>
     </section>
 
-    <!-- Browse By Category -->
+    <!-- Browse By Category — рендерится динамически -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div class="flex items-center gap-3 mb-4">
         <span class="w-4 h-9 bg-red-500 rounded-sm inline-block"></span>
@@ -89,31 +100,8 @@ export const template = `
       <div class="flex items-center justify-between mb-7">
         <h2 class="text-2xl font-bold text-gray-900">Browse By Category</h2>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <button class="category-btn group border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2.5 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200" data-category="Electronics">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-          <span class="text-xs font-semibold">Phones</span>
-        </button>
-        <button class="category-btn group border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2.5 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200" data-category="Electronics">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          <span class="text-xs font-semibold">Computers</span>
-        </button>
-        <button class="category-btn group border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2.5 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200" data-category="Electronics">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span class="text-xs font-semibold">SmartWatch</span>
-        </button>
-        <button class="category-btn group border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2.5 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200" data-category="Electronics">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          <span class="text-xs font-semibold">Camera</span>
-        </button>
-        <button class="category-btn group border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2.5 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200" data-category="Electronics">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-          <span class="text-xs font-semibold">HeadPhones</span>
-        </button>
-        <button class="category-btn group border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2.5 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200" data-category="Electronics">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
-          <span class="text-xs font-semibold">Gaming</span>
-        </button>
+      <div id="categories-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        ${[...Array(6)].map(() => `<div class="rounded-xl bg-gray-100 animate-pulse" style="height:96px;"></div>`).join('')}
       </div>
     </section>
 
@@ -179,44 +167,100 @@ export const template = `
 
 export async function init() {
   let allProducts = [];
+  let allCategories = [];
+
   try {
-    allProducts = await getAll();
+    [allProducts, allCategories] = await Promise.all([
+      getAll(),
+      getCategories(),
+    ]);
   } catch (e) {
     return;
   }
 
-  const bestGrid = document.getElementById('best-grid');
+  const categoriesGrid = document.getElementById('categories-grid');
   const exploreGrid = document.getElementById('explore-grid');
 
-  const bestProducts = allProducts.slice(0, 4);
-  const exploreProducts = allProducts.slice(0, 8);
+  // Рендер категорий
+  if (categoriesGrid) {
+    if (allCategories.length === 0) {
+      categoriesGrid.innerHTML = '<p class="col-span-6 text-sm text-gray-400">No categories yet.</p>';
+    } else {
+      categoriesGrid.innerHTML = allCategories.map(cat => `
+        <button class="category-btn border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-2.5
+          hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-lg hover:-translate-y-0.5
+          transition-all duration-200 text-gray-700"
+          data-category="${cat.name}">
+          ${CATEGORY_ICONS[cat.name] || DEFAULT_ICON}
+          <span class="text-xs font-semibold">${cat.name}</span>
+        </button>
+      `).join('');
+    }
 
-  if (bestGrid) bestGrid.innerHTML = bestProducts.length ? bestProducts.map(p => productCard(p)).join('') : '<div class="col-span-4 text-center text-gray-400 py-8">No products.</div>';
-  if (exploreGrid) exploreGrid.innerHTML = exploreProducts.length ? exploreProducts.map(p => productCard(p)).join('') : '<div class="col-span-4 text-center text-gray-400 py-8">No products.</div>';
-
-  // Category buttons
-  document.querySelectorAll('.category-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const category = btn.getAttribute('data-category');
-      navigate(`/products?category=${encodeURIComponent(category)}`);
+    categoriesGrid.querySelectorAll('.category-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        navigate(`/products?category=${encodeURIComponent(btn.getAttribute('data-category'))}`);
+      });
     });
-  });
+  }
 
-  // Event delegation: cart + wishlist on all grids
-  [bestGrid, exploreGrid].forEach(grid => {
+  // Рендер продуктов
+  const exploreProducts = allProducts.slice(0, 8);
+  if (exploreGrid) {
+    exploreGrid.innerHTML = exploreProducts.length
+      ? exploreProducts.map(p => productCard(p)).join('')
+      : '<div class="col-span-4 text-center text-gray-400 py-8">No products.</div>';
+  }
+
+  // Event delegation: cart + wishlist
+  [exploreGrid].forEach(grid => {
     if (!grid) return;
-    grid.addEventListener('click', (e) => {
+    grid.addEventListener('click', async (e) => {
       const cartBtn = e.target.closest('[data-action="add-to-cart"]');
       if (cartBtn) {
-        if (!isLoggedIn()) { showToast('Please sign in to add items to cart', 'error'); navigate('/login'); return; }
+        if (!isLoggedIn()) {
+          showToast('Please sign in to add items to cart', 'error');
+          navigate('/login');
+          return;
+        }
         const product = allProducts.find(p => String(p.id) === String(cartBtn.getAttribute('data-product-id')));
-        if (product) { addToCart(product, 1); showToast(`${product.name} added to cart!`, 'success'); }
+        if (!product) return;
+
+        cartBtn.disabled = true;
+        cartBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Adding...`;
+
+        try {
+          await addToCart(product, 1);
+          showToast(`${product.name} added to cart!`, 'success');
+        } catch (err) {
+          const msg = err.message || 'Failed to add to cart';
+          if (msg.toLowerCase().includes('stock') || msg.toLowerCase().includes('conflict')) {
+            showToast('Not enough stock available', 'error');
+          } else {
+            showToast(msg, 'error');
+          }
+        } finally {
+          cartBtn.disabled = false;
+          cartBtn.innerHTML = `
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" pointer-events="none">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            Add To Cart`;
+        }
         return;
       }
 
       const wishBtn = e.target.closest('[data-action="toggle-wishlist"]');
       if (wishBtn) {
-        if (!isLoggedIn()) { showToast('Please sign in to save items to wishlist', 'error'); navigate('/login'); return; }
+        if (!isLoggedIn()) {
+          showToast('Please sign in to save items to wishlist', 'error');
+          navigate('/login');
+          return;
+        }
         const product = allProducts.find(p => String(p.id) === String(wishBtn.getAttribute('data-product-id')));
         if (!product) return;
         const added = toggleWishlist(product);
@@ -227,7 +271,6 @@ export async function init() {
         wishBtn.classList.toggle('opacity-100', added);
         wishBtn.setAttribute('aria-label', added ? 'Remove from wishlist' : 'Add to wishlist');
         showToast(added ? `${product.name} added to wishlist!` : 'Removed from wishlist', added ? 'success' : 'info');
-        return;
       }
     });
   });

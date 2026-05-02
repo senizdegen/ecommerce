@@ -10,7 +10,8 @@ function normalize(p) {
     price: typeof p.price === 'string' ? parseFloat(p.price) : p.price,
     stock: p.available_quantity ?? p.availableQuantity ?? null,
     availableQuantity: p.available_quantity ?? p.availableQuantity ?? null,
-    categoryName: p.categoryName ?? null,
+    categoryName: p.category_name ?? p.category?.name ?? p.categoryName ?? null,
+    categoryUid: p.category_uid ?? p.category?.uid ?? p.categoryUid ?? null,
     image: p.image_url ?? p.image ?? null,
     rating: p.rating ?? 0,
   };
@@ -19,24 +20,37 @@ function normalize(p) {
 let mockStore = [...mockProducts];
 
 export async function getAll() {
-  if (config.MOCK.products) {
-    return [...mockStore];
-  }
-
+  if (config.MOCK.products) return [...mockStore];
   const data = await apiGet(config.API.feed, '/products/');
   return data.map(normalize);
 }
 
 export async function getById(id) {
-  if (config.MOCK.products) {
-    return mockStore.find((p) => p.id === id) || null;
-  }
-
+  if (config.MOCK.products) return mockStore.find((p) => p.id === id) || null;
   try {
     const data = await apiGet(config.API.feed, `/products/${id}`);
     return normalize(data);
   } catch {
     return null;
+  }
+}
+
+export async function getCategories() {
+  if (config.MOCK.products) {
+    const seen = new Set();
+    return mockStore
+      .filter(p => p.categoryName)
+      .filter(p => {
+        if (seen.has(p.categoryName)) return false;
+        seen.add(p.categoryName);
+        return true;
+      })
+      .map(p => ({ uid: p.categoryUid ?? null, name: p.categoryName }));
+  }
+  try {
+    return await apiGet(config.API.product, '/products/categories');
+  } catch {
+    return [];
   }
 }
 
@@ -50,6 +64,7 @@ export async function createProduct(data) {
       stock: parseInt(data.available_quantity, 10),
       availableQuantity: parseInt(data.available_quantity, 10),
       categoryName: null,
+      categoryUid: null,
       image: null,
       rating: 0,
     };
@@ -62,9 +77,8 @@ export async function createProduct(data) {
   formData.append('description', data.description);
   formData.append('price', String(parseFloat(data.price)));
   formData.append('available_quantity', String(parseInt(data.available_quantity, 10)));
-  if (data.image) {
-    formData.append('image', data.image);
-  }
+  if (data.category_uid) formData.append('category_uid', data.category_uid);
+  if (data.image) formData.append('image', data.image);
 
   return apiPostForm(config.API.product, '/products/', formData);
 }
@@ -86,9 +100,8 @@ export async function updateProduct(id, data) {
   formData.append('name', data.name);
   formData.append('description', data.description);
   formData.append('price', String(parseFloat(data.price)));
-  if (data.image) {
-    formData.append('image', data.image);
-  }
+  if (data.category_uid) formData.append('category_uid', data.category_uid);
+  if (data.image) formData.append('image', data.image);
 
   const updated = await apiPatchForm(config.API.product, `/products/${id}`, formData);
   return normalize(updated);
@@ -99,6 +112,5 @@ export async function deleteProduct(id) {
     mockStore = mockStore.filter((p) => p.id !== id);
     return null;
   }
-
   return apiDelete(config.API.product, `/products/${id}`);
 }

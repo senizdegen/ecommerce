@@ -1,4 +1,4 @@
-import { getAll } from '../services/productService.js';
+import { getAll, getCategories } from '../services/productService.js';
 import { addToCart } from '../services/cartService.js';
 import { toggleWishlist } from '../services/wishlistService.js';
 import { productCard } from '../components/productCard.js';
@@ -35,21 +35,21 @@ export const template = `
               </button>
               <span class="text-sm font-bold text-gray-900">Filters</span>
               <button id="clear-filters" class="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
                 Clear
               </button>
             </div>
 
             <div class="px-5 py-4 space-y-5">
-              <!-- Categories -->
+              <!-- Categories — рендерятся динамически -->
               <div>
                 <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-3">Categories</p>
-                <div class="space-y-2.5">
-                  ${[['Electronics','Electronics'],['Clothing','Clothing'],['Books','Books'],['Home','Home']].map(([val, label]) => `
-                  <label class="flex items-center gap-2.5 cursor-pointer group">
-                    <input type="checkbox" class="category-filter accent-red-500 w-4 h-4 rounded cursor-pointer" value="${val}" />
-                    <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors select-none">${label}</span>
-                  </label>`).join('')}
+                <div id="categories-list" class="space-y-2.5">
+                  <div class="h-4 bg-gray-100 rounded animate-pulse"></div>
+                  <div class="h-4 bg-gray-100 rounded animate-pulse"></div>
+                  <div class="h-4 bg-gray-100 rounded animate-pulse"></div>
                 </div>
               </div>
 
@@ -129,16 +129,11 @@ export async function init(params = {}) {
   let minPrice = undefined;
   let maxPrice = undefined;
   let allProducts = [];
-
-  // Pre-check category from URL
-  if (activeCategories.length > 0) {
-    document.querySelectorAll('.category-filter').forEach(cb => {
-      if (activeCategories.includes(cb.value)) cb.checked = true;
-    });
-  }
+  let allCategories = [];
 
   const grid = document.getElementById('products-grid');
   const info = document.getElementById('results-info');
+  const categoriesList = document.getElementById('categories-list');
 
   // Mobile filter drawer
   const aside = document.querySelector('aside');
@@ -164,11 +159,44 @@ export async function init(params = {}) {
   backdrop?.addEventListener('click', closeDrawer);
   window.addEventListener('hashchange', () => { document.body.style.overflow = ''; }, { once: true });
 
+  // Грузим продукты и категории параллельно
   try {
-    allProducts = await getAll();
+    [allProducts, allCategories] = await Promise.all([
+      getAll(),
+      getCategories(),
+    ]);
   } catch (e) {
     grid.innerHTML = '<div class="col-span-4 text-center text-gray-400 py-12">Failed to load products.</div>';
     return;
+  }
+
+  // Рендерим категории динамически
+  function renderCategories() {
+    if (allCategories.length === 0) {
+      categoriesList.innerHTML = '<p class="text-xs text-gray-400">No categories</p>';
+      return;
+    }
+
+    categoriesList.innerHTML = allCategories.map(cat => `
+      <label class="flex items-center gap-2.5 cursor-pointer group">
+        <input type="checkbox"
+          class="category-filter accent-red-500 w-4 h-4 rounded cursor-pointer"
+          value="${cat.name}"
+          ${activeCategories.includes(cat.name) ? 'checked' : ''} />
+        <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors select-none">${cat.name}</span>
+      </label>
+    `).join('');
+
+    // Навешиваем листенеры на новые чекбоксы
+    categoriesList.querySelectorAll('.category-filter').forEach(cb => {
+      cb.addEventListener('change', () => {
+        activeCategories = Array.from(
+          categoriesList.querySelectorAll('.category-filter:checked')
+        ).map(c => c.value);
+        renderProducts();
+        closeDrawer();
+      });
+    });
   }
 
   function applyFilters(products) {
@@ -201,28 +229,23 @@ export async function init(params = {}) {
     info.textContent = `${products.length} product${products.length !== 1 ? 's' : ''} found`;
 
     if (products.length === 0) {
-      grid.innerHTML = `<div class="col-span-4 flex flex-col items-center justify-center py-20 text-center">
-        <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-          <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        </div>
-        <p class="text-gray-500 font-semibold mb-1">No products found</p>
-        <p class="text-sm text-gray-400">Try adjusting your filters or search term</p>
-      </div>`;
+      grid.innerHTML = `
+        <div class="col-span-4 flex flex-col items-center justify-center py-20 text-center">
+          <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <p class="text-gray-500 font-semibold mb-1">No products found</p>
+          <p class="text-sm text-gray-400">Try adjusting your filters or search term</p>
+        </div>`;
     } else {
       grid.innerHTML = products.map(p => productCard(p)).join('');
     }
   }
 
+  renderCategories();
   renderProducts();
-
-  // Category checkboxes
-  document.querySelectorAll('.category-filter').forEach(cb => {
-    cb.addEventListener('change', () => {
-      activeCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(c => c.value);
-      renderProducts();
-      closeDrawer();
-    });
-  });
 
   // Search
   let searchTimeout;
@@ -257,7 +280,7 @@ export async function init(params = {}) {
     sortValue = '';
     minPrice = undefined;
     maxPrice = undefined;
-    document.querySelectorAll('.category-filter').forEach(cb => cb.checked = false);
+    categoriesList.querySelectorAll('.category-filter').forEach(cb => cb.checked = false);
     document.getElementById('search-input').value = '';
     document.getElementById('sort-select').value = '';
     document.getElementById('price-min').value = '';
@@ -267,7 +290,6 @@ export async function init(params = {}) {
   });
 
   // Event delegation: cart + wishlist
- // Event delegation: cart + wishlist
   grid.addEventListener('click', async (e) => {
     const cartBtn = e.target.closest('[data-action="add-to-cart"]');
     if (cartBtn) {
@@ -280,7 +302,6 @@ export async function init(params = {}) {
       const product = allProducts.find(p => String(p.id) === String(cartBtn.getAttribute('data-product-id')));
       if (!product) return;
 
-      // блокируем кнопку пока идёт запрос
       cartBtn.disabled = true;
       cartBtn.innerHTML = `
         <svg class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
