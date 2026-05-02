@@ -13,8 +13,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://ecommerce-client-admb.vercel.app",
-        "https://ecommerce-admin-admb.vercel.app",
+        "https://ecommerce-pink-alpha-15.vercel.app",
+        "https://ecommerce-client-nine-iota.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
