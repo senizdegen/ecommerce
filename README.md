@@ -118,3 +118,13 @@ Example product creation flow:
 - Clear separation between write services and read-focused service
 
 ---
+
+## Team Members
+- 230103192
+- 230103291
+- 230103102
+- 230103290
+
+---
+
+
