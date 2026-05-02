@@ -1,19 +1,19 @@
 export const config = {
   API: {
-    auth: 'http://localhost:8001/api/v1',
-    user: 'http://localhost:8002/api/v1',
-    product: 'http://localhost:8003/api/v1',
-    feed: 'http://localhost:8007/api/v1/feed',
-    cart: 'http://localhost:8005/api/v1',
-    order: 'http://localhost:8006/api/v1',
+    auth: import.meta.env.VITE_API_AUTH,
+    user: import.meta.env.VITE_API_USER,
+    product: import.meta.env.VITE_API_PRODUCT,
+    feed: import.meta.env.VITE_API_FEED,
+    cart: import.meta.env.VITE_API_CART,
+    order: import.meta.env.VITE_API_ORDER,
   },
+
+  APP_NAME: 'Shopify Admin Panel',
 
   MOCK: {
     auth: false,
     products: false,
     customers: false,
     orders: false,
-  },
-
-  APP_NAME: 'Shopify Admin Panel',
+  }
 };

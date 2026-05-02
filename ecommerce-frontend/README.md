@@ -127,4 +127,4 @@ This project is part of a full-stack ecommerce system:
 - admin panel
 - backend microservices
 
-Project is still in development.
+
