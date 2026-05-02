@@ -43,7 +43,7 @@ def upload_image(file_bytes: bytes, filename: str, content_type: str) -> str:
         Body=file_bytes,
         ContentType=content_type,
     )
-    return f"http://{Config.MINIO_ENDPOINT}/{bucket}/{filename}"
+    return f"{Config.MINIO_PUBLIC_URL}/{bucket}/{filename}"
 
 def delete_image(filename: str):
     client = get_minio_client()
