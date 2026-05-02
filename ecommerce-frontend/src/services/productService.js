@@ -25,7 +25,7 @@ export async function getAll() {
   if (config.MOCK.product) {
     return lsGetAll('products').map(normalize);
   }
-  const raw = await apiGet(config.API.feed, '/products/');
+  const raw = await apiGet(config.API.feed, '/products');
   return raw.map(normalize);
 }
 
