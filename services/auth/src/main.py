@@ -31,8 +31,8 @@ from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://ecommerce-pink-alpha-15.vercel.app",
-        "https://ecommerce-client-nine-iota.vercel.app",
+        "https://ecommerce-admin-rho-ochre.vercel.app/"
+        "https://ecommerce-client-eta-weld.vercel.app/"
     ],
     allow_credentials=True,
     allow_methods=["*"],
