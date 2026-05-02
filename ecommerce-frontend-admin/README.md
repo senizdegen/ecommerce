@@ -125,4 +125,4 @@ This project is part of a full-stack ecommerce system:
 - admin panel (this repo)
 - backend microservices
 
-Some features (like orders) may run in mock mode depending on configuration.
+
