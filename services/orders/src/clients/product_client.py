@@ -1,5 +1,5 @@
 import httpx
-from .config import Config
+from ..config import Config
 
 class ProductClient:
     def __init__(self):
