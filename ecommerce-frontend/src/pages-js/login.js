@@ -11,7 +11,7 @@ export const template = `
           <p class="text-gray-500 text-sm mb-8">Enter your details below</p>
           <form id="login-form" class="space-y-7">
             <div class="border-b border-gray-300 pb-1 focus-within:border-red-500 transition-colors">
-              <input type="email" id="login-email" class="w-full text-sm outline-none bg-transparent placeholder-gray-400 py-1" placeholder="Email or Phone Number" />
+              <input type="email" id="login-email" class="w-full text-sm outline-none bg-transparent placeholder-gray-400 py-1" placeholder="Email" />
             </div>
             <div class="border-b border-gray-300 pb-1 focus-within:border-red-500 transition-colors">
               <input type="password" id="login-password" class="w-full text-sm outline-none bg-transparent placeholder-gray-400 py-1" placeholder="Password" />
@@ -39,7 +39,7 @@ export const template = `
               </div>
             </div>
             <div class="border-b border-gray-300 pb-1 focus-within:border-red-500 transition-colors">
-              <input type="email" id="reg-email" class="w-full text-sm outline-none bg-transparent placeholder-gray-400 py-1" placeholder="Email or Phone Number" />
+              <input type="email" id="reg-email" class="w-full text-sm outline-none bg-transparent placeholder-gray-400 py-1" placeholder="Email" />
             </div>
             <div class="border-b border-gray-300 pb-1 focus-within:border-red-500 transition-colors">
               <input type="password" id="reg-password" class="w-full text-sm outline-none bg-transparent placeholder-gray-400 py-1" placeholder="Password" />
