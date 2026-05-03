@@ -84,9 +84,16 @@ function mockCancelOrder(uid) {
 
 // ── Real API implementations ─────────────────────────────────────────────────
 
-async function apiCheckout() {
-  // Бэк сам читает корзину через токен — body не нужен
-  const data = await apiPost(config.API.order, '/orders/checkout', null);
+async function apiCheckout(cartItems, total) {
+  const data = await apiPost(config.API.order, '/orders/checkout', {
+    items: cartItems.map(item => ({
+      product_uid: item.productId,
+      quantity: item.qty,
+      price_snapshot: item.price,
+    })),
+    total_amount: parseFloat(total.toFixed(2)),
+  });
+
   return {
     order: normalizeApiOrder(data.order),
     items: data.items.map(normalizeApiItem),
@@ -117,9 +124,9 @@ async function apiCancelOrder(uid) {
 // ── Public API ────────────────────────────────────────────────────────────────
 export async function checkout(cartItems, total) {
   if (config.MOCK.order) return mockCheckout(cartItems, total);
-  const result = await apiCheckout(); // было: await apiCheckout()
+  const result = await apiCheckout(cartItems, total); // ← передать параметры
   clearCart();
-  return result; // добавить return
+  return result;
 }
 
 export async function getOrders() {
