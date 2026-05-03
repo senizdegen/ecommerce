@@ -121,11 +121,7 @@ async function apiCancelOrder(uid) {
 
 export async function checkout(cartItems, total) {
   if (config.MOCK.order) return mockCheckout(cartItems, total);
-<<<<<<< HEAD
   const result = await apiCheckout();
-=======
-  const result = await apiCheckout(cartItems, total); // ← передать параметры
->>>>>>> c2911a7b13a440201fecc340c82c211c96297ae9
   clearCart();
   return result;
 }
