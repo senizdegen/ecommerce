@@ -52,6 +52,10 @@ class OrderItem(SQLModel, table=True):
         sa_column=Column(pg.NUMERIC(10, 2), nullable=False)
     )
 
+    product_name: str = Field(
+    sa_column=Column(pg.VARCHAR, nullable=False, default="")
+)
+
     created_at: datetime = Field(
         sa_column=Column(pg.TIMESTAMP, nullable=False, default=datetime.now)
     )

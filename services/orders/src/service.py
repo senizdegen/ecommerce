@@ -8,17 +8,28 @@ import uuid
 from .models import Order, OrderItem
 from .clients.cart_client import CartClient
 from .clients.inventory_client import InventoryClient
+from .clients.product_client import ProductClient
 
 
 class OrderService:
     def __init__(self):
         self.cart_client = CartClient()
         self.inventory_client = InventoryClient()
+        self.product_client = ProductClient()
 
     async def get_orders_by_user(self, user_uid: str, session: AsyncSession):
         statement = select(Order).where(Order.user_uid == user_uid).order_by(desc(Order.created_at))
         result = await session.execute(statement)
-        return result.scalars().all()
+        orders = result.scalars().all()
+
+        result_list = []
+        for order in orders:
+            items_stmt = select(OrderItem).where(OrderItem.order_uid == order.uid)
+            items_result = await session.execute(items_stmt)
+            items = items_result.scalars().all()
+            result_list.append({"order": order, "items": items})
+
+        return result_list
 
     async def get_order_by_uid(self, order_uid: str, user_uid: str, session: AsyncSession):
         try:
@@ -44,10 +55,7 @@ class OrderService:
         items_result = await session.execute(items_statement)
         items = items_result.scalars().all()
 
-        return {
-            "order": order,
-            "items": items
-        }
+        return {"order": order, "items": items}
 
     async def checkout(self, user_uid: str, access_token: str, session: AsyncSession):
         cart_data = await self.cart_client.get_my_cart(access_token)
@@ -84,13 +92,16 @@ class OrderService:
             order_items = []
 
             for item in items:
-                price_snapshot = Decimal("0.00")  # временно, пока cart/product не дают цену
+                product = await self.product_client.get_product(item["product_uid"])
+                product_name = product["name"] if product else "Unknown"
+                price_snapshot = Decimal(str(product["price"])) if product else Decimal("0.00")
                 line_total = price_snapshot * item["quantity"]
                 total_amount += line_total
 
                 order_item = OrderItem(
                     order_uid=order.uid,
                     product_uid=uuid.UUID(item["product_uid"]),
+                    product_name=product_name,
                     quantity=item["quantity"],
                     price_snapshot=price_snapshot
                 )
@@ -107,10 +118,7 @@ class OrderService:
 
             await self.cart_client.clear_cart(access_token)
 
-            return {
-                "order": order,
-                "items": order_items
-            }
+            return {"order": order, "items": order_items}
 
         except Exception:
             for item in reserved_items:
@@ -196,7 +204,4 @@ class OrderService:
         await session.commit()
         await session.refresh(order)
 
-        return {
-            "order": order,
-            "items": items
-        }
+        return {"order": order, "items": items}

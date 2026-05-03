@@ -11,6 +11,7 @@ class OrderItemModel(BaseModel):
     product_uid: uuid.UUID
     quantity: int
     price_snapshot: Decimal
+    product_name: str
     created_at: datetime
 
 class OrderModel(BaseModel):

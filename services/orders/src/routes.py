@@ -4,7 +4,7 @@ from typing import List
 
 from .database import get_session
 from .service import OrderService
-from .schemas import OrderModel, OrderWithItemsResponse, StatusUpdateRequest
+from .schemas import OrderWithItemsResponse, StatusUpdateRequest
 from .dependencies import AccessTokenBearer
 
 
@@ -26,7 +26,7 @@ async def checkout(
     return await order_service.checkout(user_uid, access_token, session)
 
 
-@order_router.get("/", response_model=List[OrderModel])
+@order_router.get("/", response_model=List[OrderWithItemsResponse])
 async def get_my_orders(
     token_details: dict = Depends(access_token_bearer),
     session: AsyncSession = Depends(get_session)
